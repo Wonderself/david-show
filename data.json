@@ -1,0 +1,79 @@
+{
+    "settings": {
+        "title": "Le Rendez-vous du Dimanche",
+        "subtitle": "Présenté par David Smadja",
+        "description": "",
+        "address": "Highlight Bar, Herzl 31, Netanya",
+        "waze_link": "https://ul.waze.com/ul?place=ChIJJZdEM6pqHRURs1uXYBt7fkM&ll=32.32880780%2C34.85794440&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_sheet",
+        "maps_link": "https://maps.google.com/?q=Highlight+Bar+Netanya",
+        "instagram": "https://www.instagram.com/lerendezvousdudimanche?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+        "bg_image": "bg_stage.jpg"
+    },
+    "events": [
+        {
+            "id": "68199411e4ce4b80b8ac789a485f27a7",
+            "guests": [
+                {
+                    "id": "1155c6bf15a04add95cf6cfac60fc4fa",
+                    "name": "David Smadja ",
+                    "desc": "",
+                    "photo": ""
+                },
+                {
+                    "id": "d15c005583d2499f95c7dbbbbbb31d66",
+                    "name": "Sarkhun",
+                    "desc": "",
+                    "photo": ""
+                },
+                {
+                    "id": "ca2da236df474c38b9a2f47e5614264e",
+                    "name": "Alfredo Bernini",
+                    "desc": "",
+                    "photo": ""
+                }
+            ],
+            "date_str": "Dimanche 4 Janvier",
+            "time_str": "20h",
+            "link": "https://selector.org.il/e/H-7gdBPkucB",
+            "description": "Spectacle en français dans un comedy club à l'américaine en plein centre-ville de Netanya ! au 31 rue Herzl.\r\nOuverture des portes 20h\r\nDébut du spectacle 21h\r\nCasher Halavi",
+            "flyer": ""
+        }
+    ],
+    "artists": {
+        "d3c0608bcadb42f0a6a5769cd90f1260": {
+            "id": "d3c0608bcadb42f0a6a5769cd90f1260",
+            "name": "Virginie Guedj",
+            "bio": "Biographie à venir...",
+            "main_photo": "",
+            "gallery": []
+        },
+        "c7443b0c27644e99a26f6d667b15dd9d": {
+            "id": "c7443b0c27644e99a26f6d667b15dd9d",
+            "name": "Sebastien Goëta",
+            "bio": "Biographie à venir...",
+            "main_photo": "",
+            "gallery": []
+        },
+        "ca2da236df474c38b9a2f47e5614264e": {
+            "id": "ca2da236df474c38b9a2f47e5614264e",
+            "name": "Alfredo Bernini",
+            "bio": "Biographie à venir...",
+            "main_photo": "",
+            "gallery": []
+        },
+        "d15c005583d2499f95c7dbbbbbb31d66": {
+            "id": "d15c005583d2499f95c7dbbbbbb31d66",
+            "name": "Sarkhun",
+            "bio": "Biographie à venir...",
+            "main_photo": "",
+            "gallery": []
+        },
+        "1155c6bf15a04add95cf6cfac60fc4fa": {
+            "id": "1155c6bf15a04add95cf6cfac60fc4fa",
+            "name": "David Smadja ",
+            "bio": "Biographie à venir...",
+            "main_photo": "",
+            "gallery": []
+        }
+    }
+}

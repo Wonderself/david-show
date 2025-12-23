@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>{{ data.settings.title }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap');
+
+        body { font-family: 'Montserrat', sans-serif; background: #000; color: white; }
+
+        
+
+        .glass { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+
+        
+
+        /* RIDEAU DE FER : Plus lourd, plus mécanique */
+
+        .accordion-content { 
+
+            transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; 
+
+            max-height: 0; 
+
+            opacity: 0; 
+
+            overflow: hidden; 
+
+        }
+
+        .accordion-open { max-height: 3000px; opacity: 1; }
+
+        
+
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        
+
+        @keyframes strongPulse { 
+
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); transform: scale(1); } 
+
+            50% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); transform: scale(1.05); } 
+
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); transform: scale(1); } 
+
+        }
+
+        .btn-reserve-mega { animation: strongPulse 2s infinite; }
+
+        
+
+        .font-arial { font-family: Arial, Helvetica, sans-serif; }
+
+    </style>
+
+</head>
+
+<body class="min-h-screen relative flex items-center justify-center p-2 md:p-6">
+
+
+
+    <div class="fixed inset-0 z-0">
+
+        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30">
+
+        <div class="absolute inset-0 bg-black/70"></div>
+
+    </div>
+
+
+
+    <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+
+
+        <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-4 fade-in-up order-1">
+
+            <div class="w-full flex justify-center lg:justify-start">
+
+                <div class="relative w-[45%] lg:w-[55%] aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl">
+
+                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2">
+
+                </div>
+
+            </div>
+
+            
+
+            <div class="text-center lg:text-left mt-2">
+
+                <div class="text-pink-500 font-bold text-[10px] tracking-widest uppercase mb-1">STAND-UP COMEDY</div>
+
+                <h1 class="font-arial font-bold text-3xl md:text-4xl text-white uppercase leading-tight tracking-tight">
+
+                    Présenté par<br>DAVID SMADJA
+
+                </h1>
+
+            </div>
+
+            
+
+            <div class="glass p-4 rounded-xl space-y-3">
+
+                {% if data.settings.description %}
+
+                <p class="text-gray-300 text-[11px] leading-relaxed font-light text-left whitespace-pre-wrap">{{ data.settings.description }}</p>
+
+                {% endif %}
+
+                <div class="space-y-2">
+
+                    <a href="{{ data.settings.waze_link }}" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition group">
+
+                        <i class="fab fa-waze text-xl text-blue-400 group-hover:scale-110 transition"></i>
+
+                        <div class="font-bold text-xs text-blue-100">Y aller avec Waze</div>
+
+                    </a>
+
+                    <a href="{{ data.settings.instagram }}" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 transition group">
+
+                        <i class="fab fa-instagram text-xl text-pink-400 group-hover:scale-110 transition"></i>
+
+                        <div class="font-bold text-xs text-pink-100">Suivez les prochains show sur Instagram!</div>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="lg:col-span-8 space-y-3 fade-in-up order-2" style="animation-delay: 0.1s;">
+
+            
+
+            {% for event in data.events %}
+
+            
+
+            {% if loop.index == 2 %}
+
+            <div class="py-6 flex items-center gap-4">
+
+                <div class="h-[1px] bg-white/30 flex-1"></div>
+
+                <h3 class="text-sm font-black uppercase tracking-widest text-white opacity-80">Dates à venir</h3>
+
+                <div class="h-[1px] bg-white/30 flex-1"></div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            <div x-data="{ open: false }" 
+
+                 x-init="$nextTick(() => { if({{ 'true' if loop.first else 'false' }}) setTimeout(() => open = true, 500) })" 
+
+                 class="glass rounded-2xl overflow-hidden border border-white/5 transition hover:border-pink-500/30">
+
+                
+
+                <div class="p-4 flex flex-col sm:flex-row items-center justify-between bg-white/5 hover:bg-white/10 transition gap-4">
+
+                    <div @click="open = !open" class="flex items-center gap-5 cursor-pointer w-full sm:w-auto">
+
+                        <div class="bg-black/60 border border-pink-500/40 p-2 rounded-2xl text-center min-w-[110px] h-24 flex flex-col justify-center shadow-xl shadow-pink-900/30 relative overflow-hidden group">
+
+                            <div class="absolute inset-0 bg-pink-500/10 transform scale-y-0 group-hover:scale-y-100 transition origin-bottom duration-300"></div>
+
+                            <div class="font-bold text-xs leading-none text-pink-400 uppercase tracking-widest mb-1 relative z-10">{{ event.date_str.split(' ')[0] }}</div>
+
+                            <div class="font-black text-5xl text-white leading-none relative z-10 my-0.5">{{ event.date_str.split(' ')[1] }}</div>
+
+                            <div class="font-bold text-xs text-gray-300 uppercase tracking-wide relative z-10">{{ event.date_str.split(' ')[2] if event.date_str.split(' ')|length > 2 else '' }}</div>
+
+                        </div>
+
+                        <div class="flex-1">
+
+                            <h3 class="font-black text-2xl text-white uppercase tracking-tight leading-none">Plateau Stand-up</h3>
+
+                            <div class="text-sm text-gray-400 flex items-center gap-3 mt-2 font-medium">
+
+                                <span class="bg-white/10 px-3 py-1 rounded-lg text-white"><i class="far fa-clock mr-2"></i>{{ event.time_str }}</span>
+
+                                {% if event.guests %}<span>• {{ event.guests|length }} Artistes</span>{% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="hidden sm:flex items-center gap-4">
+
+                        <a href="{{ event.link }}" target="_blank" class="btn-reserve-mega bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-white/20 px-10 py-4 rounded-xl text-sm font-black uppercase tracking-widest shadow-2xl hover:brightness-110 transform hover:scale-105 transition">
+
+                            RÉSERVER
+
+                        </a>
+
+                        <i @click="open = !open" class="fas fa-chevron-down text-gray-500 text-lg transition-transform duration-300 cursor-pointer p-2" :class="open ? 'rotate-180' : ''"></i>
+
+                    </div>
+
+                </div>
+
+
+
+                <a href="{{ event.link }}" target="_blank" class="sm:hidden block w-full bg-pink-600 text-white text-center font-black py-4 text-sm uppercase tracking-widest btn-reserve-mega border-t border-white/10">RÉSERVER MAINTENANT</a>
+
+
+
+                <div class="accordion-content bg-black/30" :class="open ? 'accordion-open' : ''">
+
+                    <div class="p-6 space-y-8">
+
+                        {% if event.description %}
+
+                        <div class="text-gray-200 text-sm leading-relaxed border-l-4 border-pink-500 pl-5 text-left whitespace-pre-wrap break-words bg-white/5 p-4 rounded-r-xl shadow-inner">{{ event.description }}</div>
+
+                        {% endif %}
+
+
+
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+
+                            {% if event.flyer %}
+
+                            <div class="w-full md:w-1/3 shrink-0">
+
+                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500">
+
+                            </div>
+
+                            {% endif %}
+
+
+
+                            {% if event.guests %}
+
+                            <div class="w-full {{ 'md:w-2/3' if event.flyer else 'md:w-full' }}">
+
+                                <h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 text-right">Line-up</h4>
+
+                                
+
+                                {% if event.guests|length > 3 %}
+
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-end">
+
+                                        {% for guest in event.guests %}
+
+                                        <a href="/artist/{{ guest.id }}" class="flex flex-col items-center group cursor-pointer w-32">
+
+                                            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-105 transition duration-300">
+
+                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black">
+
+                                            </div>
+
+                                            <div class="text-center mt-3 w-full">
+
+                                                <div class="font-black text-sm text-white leading-tight truncate">{{ guest.name }}</div>
+
+                                                <div class="text-[10px] text-pink-400 mt-1 font-bold uppercase">En savoir plus</div>
+
+                                            </div>
+
+                                        </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% else %}
+
+                                    <div class="flex flex-col gap-8 items-end">
+
+                                        {% for guest in event.guests %}
+
+                                        <a href="/artist/{{ guest.id }}" class="flex items-center gap-6 group cursor-pointer hover:bg-white/5 p-3 rounded-r-none rounded-l-full pl-3 pr-6 transition border border-transparent hover:border-white/10 w-fit">
+
+                                            <div class="text-right">
+
+                                                <div class="font-black text-2xl text-white leading-none mb-1 group-hover:text-pink-400 transition">{{ guest.name }}</div>
+
+                                                {% if guest.desc %}<div class="text-sm text-gray-400 mb-2 font-medium">{{ guest.desc }}</div>{% endif %}
+
+                                                <div class="text-[10px] text-white font-bold bg-pink-600 px-3 py-1 rounded-full inline-block shadow-lg group-hover:bg-pink-500 transition">Cliquez pour en savoir plus</div>
+
+                                            </div>
+
+                                            <div class="w-40 h-40 rounded-full p-1.5 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300">
+
+                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black">
+
+                                            </div>
+
+                                        </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <footer class="fixed bottom-2 right-2 z-50"><a href="/admin" class="text-[9px] font-bold text-white/30 hover:text-white transition bg-black/80 px-3 py-1 rounded-full backdrop-blur-md">Admin</a></footer>
+
+</body>
+
+</html>
+
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>{{ data.settings.title }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap');
+
+        body { font-family: 'Montserrat', sans-serif; background: #000; color: white; }
+
+        
+
+        .glass { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+
+        
+
+        /* RIDEAU DE FER : Plus lourd, plus mécanique */
+
+        .accordion-content { 
+
+            transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; 
+
+            max-height: 0; 
+
+            opacity: 0; 
+
+            overflow: hidden; 
+
+        }
+
+        .accordion-open { max-height: 3000px; opacity: 1; }
+
+        
+
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        
+
+        @keyframes strongPulse { 
+
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); transform: scale(1); } 
+
+            50% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); transform: scale(1.05); } 
+
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); transform: scale(1); } 
+
+        }
+
+        .btn-reserve-mega { animation: strongPulse 2s infinite; }
+
+        
+
+        .font-arial { font-family: Arial, Helvetica, sans-serif; }
+
+    </style>
+
+</head>
+
+<body class="min-h-screen relative flex items-center justify-center p-2 md:p-6">
+
+
+
+    <div class="fixed inset-0 z-0">
+
+        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30">
+
+        <div class="absolute inset-0 bg-black/70"></div>
+
+    </div>
+
+
+
+    <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+
+
+        <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-4 fade-in-up order-1">
+
+            <div class="w-full flex justify-center lg:justify-start">
+
+                <div class="relative w-[45%] lg:w-[55%] aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl">
+
+                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2">
+
+                </div>
+
+            </div>
+
+            
+
+            <div class="text-center lg:text-left mt-2">
+
+                <div class="text-pink-500 font-bold text-[10px] tracking-widest uppercase mb-1">STAND-UP COMEDY</div>
+
+                <h1 class="font-arial font-bold text-3xl md:text-4xl text-white uppercase leading-tight tracking-tight">
+
+                    Présenté par<br>DAVID SMADJA
+
+                </h1>
+
+            </div>
+
+            
+
+            <div class="glass p-4 rounded-xl space-y-3">
+
+                {% if data.settings.description %}
+
+                <p class="text-gray-300 text-[11px] leading-relaxed font-light text-left whitespace-pre-wrap">{{ data.settings.description }}</p>
+
+                {% endif %}
+
+                <div class="space-y-2">
+
+                    <a href="{{ data.settings.waze_link }}" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition group">
+
+                        <i class="fab fa-waze text-xl text-blue-400 group-hover:scale-110 transition"></i>
+
+                        <div class="font-bold text-xs text-blue-100">Y aller avec Waze</div>
+
+                    </a>
+
+                    <a href="{{ data.settings.instagram }}" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 transition group">
+
+                        <i class="fab fa-instagram text-xl text-pink-400 group-hover:scale-110 transition"></i>
+
+                        <div class="font-bold text-xs text-pink-100">Suivez les prochains show sur Instagram!</div>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="lg:col-span-8 space-y-3 fade-in-up order-2" style="animation-delay: 0.1s;">
+
+            
+
+            {% for event in data.events %}
+
+            
+
+            {% if loop.index == 2 %}
+
+            <div class="py-6 flex items-center gap-4">
+
+                <div class="h-[1px] bg-white/30 flex-1"></div>
+
+                <h3 class="text-sm font-black uppercase tracking-widest text-white opacity-80">Dates à venir</h3>
+
+                <div class="h-[1px] bg-white/30 flex-1"></div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            <div x-data="{ open: false }" 
+
+                 x-init="$nextTick(() => { if({{ 'true' if loop.first else 'false' }}) setTimeout(() => open = true, 500) })" 
+
+                 class="glass rounded-2xl overflow-hidden border border-white/5 transition hover:border-pink-500/30">
+
+                
+
+                <div class="p-4 flex flex-col sm:flex-row items-center justify-between bg-white/5 hover:bg-white/10 transition gap-4">
+
+                    <div @click="open = !open" class="flex items-center gap-5 cursor-pointer w-full sm:w-auto">
+
+                        <div class="bg-black/60 border border-pink-500/40 p-2 rounded-2xl text-center min-w-[110px] h-24 flex flex-col justify-center shadow-xl shadow-pink-900/30 relative overflow-hidden group">
+
+                            <div class="absolute inset-0 bg-pink-500/10 transform scale-y-0 group-hover:scale-y-100 transition origin-bottom duration-300"></div>
+
+                            <div class="font-bold text-xs leading-none text-pink-400 uppercase tracking-widest mb-1 relative z-10">{{ event.date_str.split(' ')[0] }}</div>
+
+                            <div class="font-black text-5xl text-white leading-none relative z-10 my-0.5">{{ event.date_str.split(' ')[1] }}</div>
+
+                            <div class="font-bold text-xs text-gray-300 uppercase tracking-wide relative z-10">{{ event.date_str.split(' ')[2] if event.date_str.split(' ')|length > 2 else '' }}</div>
+
+                        </div>
+
+                        <div class="flex-1">
+
+                            <h3 class="font-black text-2xl text-white uppercase tracking-tight leading-none">Plateau Stand-up</h3>
+
+                            <div class="text-sm text-gray-400 flex items-center gap-3 mt-2 font-medium">
+
+                                <span class="bg-white/10 px-3 py-1 rounded-lg text-white"><i class="far fa-clock mr-2"></i>{{ event.time_str }}</span>
+
+                                {% if event.guests %}<span>• {{ event.guests|length }} Artistes</span>{% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="hidden sm:flex items-center gap-4">
+
+                        <a href="{{ event.link }}" target="_blank" class="btn-reserve-mega bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-white/20 px-10 py-4 rounded-xl text-sm font-black uppercase tracking-widest shadow-2xl hover:brightness-110 transform hover:scale-105 transition">
+
+                            RÉSERVER
+
+                        </a>
+
+                        <i @click="open = !open" class="fas fa-chevron-down text-gray-500 text-lg transition-transform duration-300 cursor-pointer p-2" :class="open ? 'rotate-180' : ''"></i>
+
+                    </div>
+
+                </div>
+
+
+
+                <a href="{{ event.link }}" target="_blank" class="sm:hidden block w-full bg-pink-600 text-white text-center font-black py-4 text-sm uppercase tracking-widest btn-reserve-mega border-t border-white/10">RÉSERVER MAINTENANT</a>
+
+
+
+                <div class="accordion-content bg-black/30" :class="open ? 'accordion-open' : ''">
+
+                    <div class="p-6 space-y-8">
+
+                        {% if event.description %}
+
+                        <div class="text-gray-200 text-sm leading-relaxed border-l-4 border-pink-500 pl-5 text-left whitespace-pre-wrap break-words bg-white/5 p-4 rounded-r-xl shadow-inner">{{ event.description }}</div>
+
+                        {% endif %}
+
+
+
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+
+                            {% if event.flyer %}
+
+                            <div class="w-full md:w-1/3 shrink-0">
+
+                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500">
+
+                            </div>
+
+                            {% endif %}
+
+
+
+                            {% if event.guests %}
+
+                            <div class="w-full {{ 'md:w-2/3' if event.flyer else 'md:w-full' }}">
+
+                                <h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 text-right">Line-up</h4>
+
+                                
+
+                                {% if event.guests|length > 3 %}
+
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-end">
+
+                                        {% for guest in event.guests %}
+
+                                        <a href="/artist/{{ guest.id }}" class="flex flex-col items-center group cursor-pointer w-32">
+
+                                            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-105 transition duration-300">
+
+                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black">
+
+                                            </div>
+
+                                            <div class="text-center mt-3 w-full">
+
+                                                <div class="font-black text-sm text-white leading-tight truncate">{{ guest.name }}</div>
+
+                                                <div class="text-[10px] text-pink-400 mt-1 font-bold uppercase">En savoir plus</div>
+
+                                            </div>
+
+                                        </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% else %}
+
+                                    <div class="flex flex-col gap-8 items-end">
+
+                                        {% for guest in event.guests %}
+
+                                        <a href="/artist/{{ guest.id }}" class="flex items-center gap-6 group cursor-pointer hover:bg-white/5 p-3 rounded-r-none rounded-l-full pl-3 pr-6 transition border border-transparent hover:border-white/10 w-fit">
+
+                                            <div class="text-right">
+
+                                                <div class="font-black text-2xl text-white leading-none mb-1 group-hover:text-pink-400 transition">{{ guest.name }}</div>
+
+                                                {% if guest.desc %}<div class="text-sm text-gray-400 mb-2 font-medium">{{ guest.desc }}</div>{% endif %}
+
+                                                <div class="text-[10px] text-white font-bold bg-pink-600 px-3 py-1 rounded-full inline-block shadow-lg group-hover:bg-pink-500 transition">Cliquez pour en savoir plus</div>
+
+                                            </div>
+
+                                            <div class="w-40 h-40 rounded-full p-1.5 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300">
+
+                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black">
+
+                                            </div>
+
+                                        </a>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <footer class="fixed bottom-2 right-2 z-50"><a href="/admin" class="text-[9px] font-bold text-white/30 hover:text-white transition bg-black/80 px-3 py-1 rounded-full backdrop-blur-md">.</a></footer>
+
+</body>
+
+</html>
