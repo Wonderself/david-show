@@ -31,25 +31,26 @@
         <div class="absolute inset-0 bg-black/70"></div>
     </div>
 
-    <div class="lg:hidden fixed bottom-4 left-4 z-50 opacity-60">
+    <div class="lg:hidden fixed bottom-3 left-3 z-50 opacity-70">
         <img src="/static/logogo.jpg" class="w-20 h-auto grayscale" alt="Prod">
     </div>
 
     <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <div class="hidden lg:block absolute -top-12 right-0 z-50 animate-[fadeIn_1s_ease-out]">
-            <img src="/static/logogo.jpg" class="w-40 h-auto drop-shadow-2xl hover:scale-105 transition duration-500 rotate-2" alt="Highlight">
-        </div>
-
         <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-4 fade-in-up order-1">
-            <div class="w-full flex justify-center lg:justify-start">
-                <div class="relative w-[45%] lg:w-[55%] aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl">
-                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2">
+            
+            <div class="w-full flex items-start gap-4 justify-center lg:justify-start">
+                <div class="relative w-[50%] aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl group">
+                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500">
+                </div>
+                
+                <div class="hidden lg:block pt-2">
+                    <img src="/static/logogo.jpg" class="w-24 h-auto drop-shadow-2xl opacity-90 hover:opacity-100 hover:scale-105 transition duration-500" alt="Highlight">
                 </div>
             </div>
             
             <div class="text-center lg:text-left mt-2">
-                <div class="text-pink-500 font-bold text-[10px] tracking-widest uppercase mb-1">STAND-UP COMEDY</div>
+                <div class="text-pink-500 font-bold text-[10px] tracking-widest uppercase mb-1">SPECTACLE EN FRANÇAIS</div>
                 <h1 class="font-arial font-bold text-3xl md:text-4xl text-white uppercase leading-tight tracking-tight">
                     Présenté par<br>DAVID SMADJA
                 </h1>
@@ -124,7 +125,7 @@
                         <div class="flex flex-col md:flex-row gap-8 items-start">
                             {% if event.flyer %}
                             <div class="w-full md:w-1/3 shrink-0">
-                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500" alt="Affiche">
+                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500" alt="Affiche" onerror="this.style.display='none'">
                             </div>
                             {% endif %}
 
@@ -136,8 +137,7 @@
                                     {% for guest in event.guests %}
                                     <a href="/artist/{{ guest.id }}" class="flex flex-col items-center group cursor-pointer w-32">
                                         <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-105 transition duration-300">
-                                            <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black" 
-                                                 onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name }}&background=random&color=fff&size=200'">
+                                            <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name }}&background=random&color=fff&size=200'">
                                         </div>
                                         <div class="text-center mt-3 w-full">
                                             <div class="font-black text-sm text-white leading-tight truncate">{{ guest.name }}</div>

@@ -3,36 +3,15 @@ import json
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = "david_final_key_v14_secure"
+app.secret_key = "david_final_key_v15_secure"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 
 DB_FILE = "data.json"
-
-DEFAULT_DATA = {
-    "settings": {
-        "title": "Le Rendez-vous du Dimanche",
-        "description": "", 
-        "waze_link": "https://ul.waze.com/ul?place=ChIJJZdEM6pqHRURs1uXYBt7fkM&ll=32.32880780%2C34.85794440&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_sheet",
-        "instagram": "https://www.instagram.com/lerendezvousdudimanche?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
-        "bg_image": "bg_stage.jpg"
-    },
-    "events": [],
-    "artists": {}
-}
-
+DEFAULT_DATA = { "settings": { "title": "Le Rendez-vous du Dimanche", "description": "", "waze_link": "", "instagram": "", "bg_image": "bg_stage.jpg" }, "events": [], "artists": {} }
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('is_admin'):
-            return redirect(url_for('admin', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
 
 def load_data():
     if not os.path.exists(DB_FILE): return DEFAULT_DATA
@@ -58,7 +37,12 @@ def save_image(file):
             return f"uploads/{filename}"
     return None
 
-# --- ROUTES ---
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_admin'): return redirect(url_for('admin', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index(): return render_template('index.html', data=load_data())
@@ -70,17 +54,12 @@ def artist_profile(artist_id):
     if not artist: return redirect(url_for('index'))
     return render_template('artist.html', artist=artist, settings=data['settings'])
 
-@app.route('/guide')
-@admin_required
-def guide(): return render_template('guide.html')
-
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if request.method == 'POST':
         if request.form.get('password') == "pitikon":
             session['is_admin'] = True
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
+            return redirect(request.args.get('next') or url_for('dashboard'))
         flash("Mot de passe incorrect", "error")
     return render_template('login.html')
 
@@ -94,7 +73,6 @@ def save_event():
     data = load_data()
     event_id = request.form.get('event_id')
     is_new = not event_id
-    
     if is_new:
         event_id = uuid.uuid4().hex
         event = {"id": event_id, "guests": []}
@@ -102,103 +80,82 @@ def save_event():
         event = next((e for e in data['events'] if e['id'] == event_id), None)
         if not event: return redirect(url_for('dashboard'))
 
-    event.update({
-        "date_str": request.form.get('date_str'),
-        "time_str": request.form.get('time_str'),
-        "link": request.form.get('link'),
-        "description": request.form.get('description'),
-    })
+    event.update({ "date_str": request.form.get('date_str'), "time_str": request.form.get('time_str'), "link": request.form.get('link'), "description": request.form.get('description') })
 
     flyer = request.files.get('flyer_file')
-    if flyer: 
+    if flyer:
         path = save_image(flyer)
         if path: event['flyer'] = path
     elif is_new: event['flyer'] = None
 
-    event['guests'] = [] 
-    guest_names = request.form.getlist('guest_name[]')
-    guest_descs = request.form.getlist('guest_desc[]')
-    guest_photos = request.files.getlist('guest_photo[]')
-    existing_photos = request.form.getlist('existing_guest_photo[]')
-
-    for i in range(len(guest_names)):
-        if guest_names[i].strip():
-            # Cherche si l'artiste existe déjà par son nom
-            existing_id = next((aid for aid, a in data['artists'].items() if a['name'].lower() == guest_names[i].strip().lower()), None)
+    event['guests'] = []
+    names = request.form.getlist('guest_name[]')
+    descs = request.form.getlist('guest_desc[]')
+    photos = request.files.getlist('guest_photo[]')
+    
+    for i, name in enumerate(names):
+        if name.strip():
+            # Check existing artist by name
+            exist_id = next((aid for aid, a in data['artists'].items() if a['name'].lower() == name.strip().lower()), None)
+            artist_id = exist_id if exist_id else uuid.uuid4().hex
             
-            if existing_id: 
-                artist_id = existing_id
-            else:
-                artist_id = uuid.uuid4().hex
-                data['artists'][artist_id] = {
-                    "id": artist_id, "name": guest_names[i], "bio": "Biographie à venir...", 
-                    "main_photo": None, "gallery": []
-                }
+            if artist_id not in data['artists']:
+                data['artists'][artist_id] = { "id": artist_id, "name": name, "bio": "Biographie...", "main_photo": None, "gallery": [] }
+            
+            # Update photo only if new one uploaded in the "New Guest" field
+            if i < len(photos) and photos[i].filename:
+                p = save_image(photos[i])
+                if p: data['artists'][artist_id]['main_photo'] = p
+            
+            event['guests'].append({ "id": artist_id, "name": name, "desc": descs[i], "photo": data['artists'][artist_id]['main_photo'] })
 
-            # Gestion photo
-            photo_path = data['artists'][artist_id]['main_photo']
-            if i < len(guest_photos) and guest_photos[i].filename:
-                new_photo = save_image(guest_photos[i])
-                if new_photo: 
-                    photo_path = new_photo
-                    data['artists'][artist_id]['main_photo'] = photo_path
-
-            event['guests'].append({
-                "id": artist_id, "name": guest_names[i], "desc": guest_descs[i], "photo": photo_path
-            })
-
-    if is_new:
-        data['events'].insert(0, event)
-        flash("🎉 Soirée créée !", "success")
-    else:
-        flash("✅ Soirée modifiée !", "success")
-
+    if is_new: data['events'].insert(0, event)
     save_data(data)
+    flash("✅ Soirée enregistrée", "success")
     return redirect(url_for('dashboard'))
+
+@app.route('/update_artist_profile', methods=['POST'])
+@admin_required
+def update_artist_profile():
+    data = load_data()
+    aid = request.form.get('artist_id')
+    if aid in data['artists']:
+        data['artists'][aid]['bio'] = request.form.get('bio')
+        # GESTION REMPLACEMENT PHOTO PRINCIPALE
+        main_photo = request.files.get('main_photo_file')
+        if main_photo and main_photo.filename:
+            path = save_image(main_photo)
+            if path: data['artists'][aid]['main_photo'] = path
+        
+        # GESTION GALERIE
+        for f in request.files.getlist('gallery[]'):
+            path = save_image(f)
+            if path: data['artists'][aid]['gallery'].append(path)
+            
+        flash("✅ Profil mis à jour", "success")
+    save_data(data)
+    return redirect(url_for('dashboard') + "#artists")
 
 @app.route('/delete_event_image/<event_id>')
 @admin_required
 def delete_event_image(event_id):
     data = load_data()
-    event = next((e for e in data['events'] if e['id'] == event_id), None)
-    if event:
-        event['flyer'] = None
-        save_data(data)
-        flash("🗑️ Affiche supprimée", "success")
+    e = next((ev for ev in data['events'] if ev['id'] == event_id), None)
+    if e: e['flyer'] = None; save_data(data); flash("Image supprimée", "success")
     return redirect(url_for('dashboard'))
 
 @app.route('/delete_artist_photo/<artist_id>')
 @admin_required
 def delete_artist_photo(artist_id):
     data = load_data()
-    if artist_id in data['artists']:
-        data['artists'][artist_id]['main_photo'] = None
-        save_data(data)
-        flash("🗑️ Photo artiste supprimée", "success")
-    return redirect(url_for('dashboard') + "#artists")
-
-@app.route('/update_artist_profile', methods=['POST'])
-@admin_required
-def update_artist_profile():
-    data = load_data()
-    artist_id = request.form.get('artist_id')
-    if artist_id in data['artists']:
-        data['artists'][artist_id]['bio'] = request.form.get('bio')
-        for f in request.files.getlist('gallery[]'):
-            path = save_image(f)
-            if path: data['artists'][artist_id]['gallery'].append(path)
-        flash("✅ Profil mis à jour !", "success")
-    save_data(data)
+    if artist_id in data['artists']: data['artists'][artist_id]['main_photo'] = None; save_data(data); flash("Photo supprimée", "success")
     return redirect(url_for('dashboard') + "#artists")
 
 @app.route('/delete_artist/<artist_id>')
 @admin_required
 def delete_artist(artist_id):
     data = load_data()
-    if artist_id in data['artists']:
-        del data['artists'][artist_id]
-        save_data(data)
-        flash("🗑️ Artiste supprimé définitivement.", "success")
+    if artist_id in data['artists']: del data['artists'][artist_id]; save_data(data); flash("Artiste supprimé", "success")
     return redirect(url_for('dashboard') + "#artists")
 
 @app.route('/delete_event/<event_id>')
@@ -207,13 +164,10 @@ def delete_event(event_id):
     data = load_data()
     data['events'] = [e for e in data['events'] if e['id'] != event_id]
     save_data(data)
-    flash("🗑️ Soirée supprimée.", "success")
+    flash("Soirée supprimée", "success")
     return redirect(url_for('dashboard'))
 
 @app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('index'))
+def logout(): session.clear(); return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__': app.run(host='0.0.0.0', port=5000)
