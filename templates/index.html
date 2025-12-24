@@ -10,28 +10,17 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap');
         body { font-family: 'Montserrat', sans-serif; background: #000; color: white; }
-        
         .glass { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-        
-        /* RIDEAU DE FER : Plus lourd, plus mécanique */
-        .accordion-content { 
-            transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; 
-            max-height: 0; 
-            opacity: 0; 
-            overflow: hidden; 
-        }
+        .accordion-content { transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; max-height: 0; opacity: 0; overflow: hidden; }
         .accordion-open { max-height: 3000px; opacity: 1; }
-        
         .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        
         @keyframes strongPulse { 
             0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); transform: scale(1); } 
             50% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); transform: scale(1.05); } 
             100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); transform: scale(1); } 
         }
         .btn-reserve-mega { animation: strongPulse 2s infinite; }
-        
         .font-arial { font-family: Arial, Helvetica, sans-serif; }
     </style>
 </head>
@@ -42,11 +31,15 @@
         <div class="absolute inset-0 bg-black/70"></div>
     </div>
 
-    <div class="fixed bottom-4 left-4 z-50 opacity-40 hover:opacity-100 transition duration-500">
-        <img src="/static/logogo.jpg" class="w-16 h-auto grayscale hover:grayscale-0 transition" alt="Prod">
+    <div class="lg:hidden fixed bottom-4 left-4 z-50 opacity-60">
+        <img src="/static/logogo.jpg" class="w-20 h-auto grayscale" alt="Prod">
     </div>
 
     <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <div class="hidden lg:block absolute -top-12 right-0 z-50 animate-[fadeIn_1s_ease-out]">
+            <img src="/static/logogo.jpg" class="w-40 h-auto drop-shadow-2xl hover:scale-105 transition duration-500 rotate-2" alt="Highlight">
+        </div>
 
         <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-4 fade-in-up order-1">
             <div class="w-full flex justify-center lg:justify-start">
@@ -131,7 +124,7 @@
                         <div class="flex flex-col md:flex-row gap-8 items-start">
                             {% if event.flyer %}
                             <div class="w-full md:w-1/3 shrink-0">
-                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500" onerror="this.style.display='none'">
+                                <img src="/static/{{ event.flyer }}" class="w-full rounded-xl shadow-2xl border border-white/10 transform hover:rotate-1 transition duration-500" alt="Affiche">
                             </div>
                             {% endif %}
 
@@ -139,36 +132,20 @@
                             <div class="w-full {{ 'md:w-2/3' if event.flyer else 'md:w-full' }}">
                                 <h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-2 text-right">Line-up</h4>
                                 
-                                {% if event.guests|length > 3 %}
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-end">
-                                        {% for guest in event.guests %}
-                                        <a href="/artist/{{ guest.id }}" class="flex flex-col items-center group cursor-pointer w-32">
-                                            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-105 transition duration-300">
-                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name }}'">
-                                            </div>
-                                            <div class="text-center mt-3 w-full">
-                                                <div class="font-black text-sm text-white leading-tight truncate">{{ guest.name }}</div>
-                                                <div class="text-[10px] text-pink-400 mt-1 font-bold uppercase">En savoir plus</div>
-                                            </div>
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="flex flex-col gap-8 items-end">
-                                        {% for guest in event.guests %}
-                                        <a href="/artist/{{ guest.id }}" class="flex items-center gap-6 group cursor-pointer hover:bg-white/5 p-3 rounded-r-none rounded-l-full pl-3 pr-6 transition border border-transparent hover:border-white/10 w-fit">
-                                            <div class="text-right">
-                                                <div class="font-black text-2xl text-white leading-none mb-1 group-hover:text-pink-400 transition">{{ guest.name }}</div>
-                                                {% if guest.desc %}<div class="text-sm text-gray-400 mb-2 font-medium">{{ guest.desc }}</div>{% endif %}
-                                                <div class="text-[10px] text-white font-bold bg-pink-600 px-3 py-1 rounded-full inline-block shadow-lg group-hover:bg-pink-500 transition">Cliquez pour en savoir plus</div>
-                                            </div>
-                                            <div class="w-40 h-40 rounded-full p-1.5 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300">
-                                                <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name }}'">
-                                            </div>
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-end">
+                                    {% for guest in event.guests %}
+                                    <a href="/artist/{{ guest.id }}" class="flex flex-col items-center group cursor-pointer w-32">
+                                        <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-105 transition duration-300">
+                                            <img src="/static/{{ guest.photo or 'default.jpg' }}" class="w-full h-full rounded-full object-cover bg-black" 
+                                                 onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name }}&background=random&color=fff&size=200'">
+                                        </div>
+                                        <div class="text-center mt-3 w-full">
+                                            <div class="font-black text-sm text-white leading-tight truncate">{{ guest.name }}</div>
+                                            <div class="text-[10px] text-pink-400 mt-1 font-bold uppercase">En savoir plus</div>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                </div>
                             </div>
                             {% endif %}
                         </div>

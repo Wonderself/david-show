@@ -6,7 +6,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = "david_final_key_v13_secure"
+app.secret_key = "david_final_key_v14_secure"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 
@@ -15,11 +15,8 @@ DB_FILE = "data.json"
 DEFAULT_DATA = {
     "settings": {
         "title": "Le Rendez-vous du Dimanche",
-        "subtitle": "Présenté par David Smadja",
         "description": "", 
-        "address": "Highlight Bar, Herzl 31, Netanya",
         "waze_link": "https://ul.waze.com/ul?place=ChIJJZdEM6pqHRURs1uXYBt7fkM&ll=32.32880780%2C34.85794440&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_sheet",
-        "maps_link": "https://maps.google.com/?q=Highlight+Bar+Netanya",
         "instagram": "https://www.instagram.com/lerendezvousdudimanche?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
         "bg_image": "bg_stage.jpg"
     },
@@ -33,7 +30,6 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('is_admin'):
-            # MODIFICATION ICI : On retient la page demandée (next)
             return redirect(url_for('admin', next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -83,13 +79,8 @@ def admin():
     if request.method == 'POST':
         if request.form.get('password') == "pitikon":
             session['is_admin'] = True
-            
-            # MODIFICATION ICI : Redirection intelligente
             next_page = request.args.get('next')
-            if next_page:
-                return redirect(next_page)
-            
-            return redirect(url_for('dashboard'))
+            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         flash("Mot de passe incorrect", "error")
     return render_template('login.html')
 
@@ -132,26 +123,28 @@ def save_event():
 
     for i in range(len(guest_names)):
         if guest_names[i].strip():
-            artist_id = uuid.uuid4().hex
+            # Cherche si l'artiste existe déjà par son nom
             existing_id = next((aid for aid, a in data['artists'].items() if a['name'].lower() == guest_names[i].strip().lower()), None)
-            if existing_id: artist_id = existing_id
-
-            photo_path = None
-            if i < len(guest_photos) and guest_photos[i].filename:
-                photo_path = save_image(guest_photos[i])
-            elif i < len(existing_photos):
-                photo_path = existing_photos[i]
-
-            if artist_id not in data['artists']:
+            
+            if existing_id: 
+                artist_id = existing_id
+            else:
+                artist_id = uuid.uuid4().hex
                 data['artists'][artist_id] = {
                     "id": artist_id, "name": guest_names[i], "bio": "Biographie à venir...", 
-                    "main_photo": photo_path, "gallery": []
+                    "main_photo": None, "gallery": []
                 }
-            elif photo_path:
-                data['artists'][artist_id]['main_photo'] = photo_path
+
+            # Gestion photo
+            photo_path = data['artists'][artist_id]['main_photo']
+            if i < len(guest_photos) and guest_photos[i].filename:
+                new_photo = save_image(guest_photos[i])
+                if new_photo: 
+                    photo_path = new_photo
+                    data['artists'][artist_id]['main_photo'] = photo_path
 
             event['guests'].append({
-                "id": artist_id, "name": guest_names[i], "desc": guest_descs[i], "photo": data['artists'][artist_id]['main_photo']
+                "id": artist_id, "name": guest_names[i], "desc": guest_descs[i], "photo": photo_path
             })
 
     if is_new:
@@ -162,6 +155,27 @@ def save_event():
 
     save_data(data)
     return redirect(url_for('dashboard'))
+
+@app.route('/delete_event_image/<event_id>')
+@admin_required
+def delete_event_image(event_id):
+    data = load_data()
+    event = next((e for e in data['events'] if e['id'] == event_id), None)
+    if event:
+        event['flyer'] = None
+        save_data(data)
+        flash("🗑️ Affiche supprimée", "success")
+    return redirect(url_for('dashboard'))
+
+@app.route('/delete_artist_photo/<artist_id>')
+@admin_required
+def delete_artist_photo(artist_id):
+    data = load_data()
+    if artist_id in data['artists']:
+        data['artists'][artist_id]['main_photo'] = None
+        save_data(data)
+        flash("🗑️ Photo artiste supprimée", "success")
+    return redirect(url_for('dashboard') + "#artists")
 
 @app.route('/update_artist_profile', methods=['POST'])
 @admin_required
@@ -194,20 +208,6 @@ def delete_event(event_id):
     data['events'] = [e for e in data['events'] if e['id'] != event_id]
     save_data(data)
     flash("🗑️ Soirée supprimée.", "success")
-    return redirect(url_for('dashboard'))
-
-@app.route('/update_settings', methods=['POST'])
-@admin_required
-def update_settings():
-    data = load_data()
-    data['settings'].update({
-        'title': request.form.get('title'),
-        'description': request.form.get('description'),
-        'bg_image': request.form.get('bg_image'),
-        'instagram': request.form.get('instagram')
-    })
-    save_data(data)
-    flash("⚙️ Paramètres enregistrés !", "success")
     return redirect(url_for('dashboard'))
 
 @app.route('/logout')
