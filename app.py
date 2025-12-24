@@ -5,27 +5,70 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "david_final_key_v100_secure"
+app.secret_key = "david_rescue_key_v2024"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
+
+# ON REVIENT A LA SIMPLE RACINE
 DB_FILE = "data.json"
-DEFAULT_DATA = { "settings": { "title": "Le Rendez-vous du Dimanche", "description": "", "waze_link": "", "instagram": "", "bg_image": "bg_stage.jpg" }, "events": [], "artists": {} }
+
+# TES DONNÉES SONT ICI (Sécurité anti-perte)
+DEFAULT_DATA = {
+    "settings": {
+        "title": "Le Rendez-vous du Dimanche",
+        "description": "Spectacle en français dans un comedy club à l'américaine en plein centre-ville de Netanya ! au 31 rue Herzl.\nOuverture des portes 20h\nDébut du spectacle 21h\nCasher Halavi",
+        "waze_link": "https://ul.waze.com/ul?place=ChIJJZdEM6pqHRURs1uXYBt7fkM&ll=32.32880780%2C34.85794440&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_sheet",
+        "instagram": "https://www.instagram.com/lerendezvousdudimanche?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+        "bg_image": "bg_stage.jpg"
+    },
+    "events": [
+        {
+            "id": "68199411e4ce4b80b8ac789a485f27a7",
+            "date_str": "Dimanche 4 Janvier",
+            "time_str": "20h",
+            "link": "https://selector.org.il/e/H-7gdBPkucB",
+            "description": "Spectacle en français dans un comedy club à l'américaine en plein centre-ville de Netanya ! au 31 rue Herzl.\nOuverture des portes 20h\nDébut du spectacle 21h\nCasher Halavi",
+            "flyer": "",
+            "guests": [
+                {"id": "1155c6bf15a04add95cf6cfac60fc4fa", "name": "David Smadja ", "desc": "", "photo": ""},
+                {"id": "d15c005583d2499f95c7dbbbbbb31d66", "name": "Sarkhun", "desc": "", "photo": ""},
+                {"id": "ca2da236df474c38b9a2f47e5614264e", "name": "Alfredo Bernini", "desc": "", "photo": ""}
+            ]
+        }
+    ],
+    "artists": {
+        "d3c0608bcadb42f0a6a5769cd90f1260": {"id": "d3c0608bcadb42f0a6a5769cd90f1260", "name": "Virginie Guedj", "bio": "Biographie à venir...", "main_photo": "", "gallery": []},
+        "c7443b0c27644e99a26f6d667b15dd9d": {"id": "c7443b0c27644e99a26f6d667b15dd9d", "name": "Sebastien Goëta", "bio": "Biographie à venir...", "main_photo": "", "gallery": []},
+        "ca2da236df474c38b9a2f47e5614264e": {"id": "ca2da236df474c38b9a2f47e5614264e", "name": "Alfredo Bernini", "bio": "Biographie à venir...", "main_photo": "", "gallery": []},
+        "d15c005583d2499f95c7dbbbbbb31d66": {"id": "d15c005583d2499f95c7dbbbbbb31d66", "name": "Sarkhun", "bio": "Biographie à venir...", "main_photo": "", "gallery": []},
+        "1155c6bf15a04add95cf6cfac60fc4fa": {"id": "1155c6bf15a04add95cf6cfac60fc4fa", "name": "David Smadja ", "bio": "Biographie à venir...", "main_photo": "", "gallery": []}
+    }
+}
+
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 def load_data():
-    if not os.path.exists(DB_FILE): return DEFAULT_DATA
+    if not os.path.exists(DB_FILE):
+        # Si pas de fichier, on charge les données de secours et on les sauvegarde
+        save_data(DEFAULT_DATA)
+        return DEFAULT_DATA
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            if "artists" not in data: data["artists"] = {}
-            if "events" not in data: data["events"] = []
+            # Vérifications de sécurité
+            if "artists" not in data: data["artists"] = DEFAULT_DATA["artists"]
+            if "events" not in data: data["events"] = DEFAULT_DATA["events"]
             if "settings" not in data: data["settings"] = DEFAULT_DATA["settings"]
             return data
-    except: return DEFAULT_DATA
+    except:
+        return DEFAULT_DATA
 
 def save_data(data):
-    with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    try:
+        with open(DB_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erreur sauvegarde: {e}")
 
 def save_image(file):
     if file and file.filename:
@@ -72,7 +115,6 @@ def save_event():
     data = load_data()
     event_id = request.form.get('event_id')
     is_new = not event_id
-    
     if is_new:
         event_id = uuid.uuid4().hex
         event = {"id": event_id, "guests": []}
@@ -100,16 +142,13 @@ def save_event():
             if artist_id not in data['artists']:
                 data['artists'][artist_id] = { "id": artist_id, "name": name, "bio": "Biographie...", "main_photo": None, "gallery": [] }
             
-            # Mise à jour photo si nouvelle fournie
             if i < len(photos) and photos[i].filename:
                 p = save_image(photos[i])
                 if p: data['artists'][artist_id]['main_photo'] = p
             
             event['guests'].append({ "id": artist_id, "name": name, "desc": descs[i], "photo": data['artists'][artist_id]['main_photo'] })
 
-    # IMPORTANT: On ajoute à la FIN (append) pour ordre chrono
     if is_new: data['events'].append(event)
-    
     save_data(data)
     flash("✅ Soirée enregistrée", "success")
     return redirect(url_for('dashboard'))
@@ -121,17 +160,13 @@ def update_artist_profile():
     aid = request.form.get('artist_id')
     if aid in data['artists']:
         data['artists'][aid]['bio'] = request.form.get('bio')
-        
-        # LOGIQUE DE REMPLACEMENT PHOTO
         main_photo = request.files.get('main_photo_file')
         if main_photo and main_photo.filename:
             path = save_image(main_photo)
             if path: data['artists'][aid]['main_photo'] = path
-            
         for f in request.files.getlist('gallery[]'):
             path = save_image(f)
             if path: data['artists'][aid]['gallery'].append(path)
-            
         flash("✅ Profil mis à jour", "success")
     save_data(data)
     return redirect(url_for('dashboard') + "#artists")

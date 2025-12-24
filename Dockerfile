@@ -3,8 +3,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-# Création des dossiers
+# On s'assure que le dossier uploads existe
 RUN mkdir -p static/uploads
-RUN mkdir -p data
 CMD ["python", "app.py"]
-# FORCE UPDATE V: 77
+# RESCUE UPDATE V: 999
