@@ -141,9 +141,7 @@
                 </div>
             </div>
             {% endfor %}
-            {% if not data.events %}
-            <div class="text-center py-20 opacity-50"><p>Aucune date pour le moment.</p></div>
-            {% endif %}
+            {% if not data.events %}<div class="text-center py-20 opacity-50"><p>Aucune date pour le moment.</p></div>{% endif %}
         </div>
     </div>
     <div class="fixed top-2 left-2 z-[100] group"><a href="/admin" class="block w-2 h-2 bg-white/10 hover:bg-white rounded-full transition"></a></div>
