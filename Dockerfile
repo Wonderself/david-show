@@ -3,8 +3,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-# Création du dossier pour les images
+# Création des dossiers
 RUN mkdir -p static/uploads
-# COMMANDE DE LANCEMENT
+RUN mkdir -p data
 CMD ["python", "app.py"]
-# FORCE REBUILD : VERSION 10 (Change ce chiffre si ça bloque encore !)
+# FORCE UPDATE V: 77
