@@ -9,8 +9,6 @@
     <style>
         .upload-success { border-color: #22c55e !important; background: #f0fdf4 !important; }
         .upload-error { border-color: #ef4444 !important; background: #fef2f2 !important; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 pb-32">
@@ -34,7 +32,7 @@
             <form action="/save_event" method="POST" enctype="multipart/form-data" class="space-y-6" id="main-form">
                 <input type="hidden" name="event_id" id="event_id">
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label class="text-xs font-bold text-gray-500 uppercase block mb-1">Date</label><input type="text" name="date_str" id="date_str" placeholder="ex: Dimanche 21 Déc" required class="border p-3 rounded-lg w-full text-sm bg-gray-50 focus:bg-white transition"></div>
                     <div><label class="text-xs font-bold text-gray-500 uppercase block mb-1">Heure</label><input type="text" name="time_str" id="time_str" placeholder="ex: 20h30" required class="border p-3 rounded-lg w-full text-sm bg-gray-50 focus:bg-white transition"></div>
                 </div>
@@ -45,8 +43,9 @@
                     <i class="fas fa-image text-2xl text-gray-400 mb-2 group-hover:text-blue-400 transition"></i>
                     <p class="text-sm font-bold text-gray-600" id="flyer-text">Télécharger Affiche (Format Portrait)</p>
                     <input type="file" name="flyer_file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleUpload(this, 'flyer-box', 'flyer-text')">
+                    
                     <div id="delete-flyer-btn" class="hidden absolute top-2 right-2 z-10">
-                        <a href="#" class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold" onclick="deleteEventImage(); return false;">Supprimer</a>
+                        <a href="#" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold shadow-lg hover:bg-red-600" onclick="if(confirm('Supprimer l\'affiche ?')) window.location.href='/delete_event_image/'+document.getElementById('event_id').value; return false;">Supprimer</a>
                     </div>
                 </div>
 
@@ -56,26 +55,26 @@
                 </div>
 
                 <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg transform hover:scale-[1.01]" id="submit-btn">PUBLIER LA SOIRÉE</button>
+                    <button type="submit" class="flex-1 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg" id="submit-btn">PUBLIER LA SOIRÉE</button>
                     <button type="button" onclick="resetForm()" class="hidden px-6 rounded-xl border-2 border-gray-200 font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition" id="cancel-btn">Annuler</button>
                 </div>
             </form>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm border">
-            <h2 class="font-bold text-sm text-gray-500 uppercase tracking-widest mb-4 border-b pb-2">Vos Soirées en ligne</h2>
+            <h2 class="font-bold text-sm text-gray-500 uppercase tracking-widest mb-4 border-b pb-2">Vos Soirées</h2>
             {% for event in data.events %}
             <div class="flex items-center justify-between border-b py-3 last:border-0 hover:bg-gray-50 transition px-3 -mx-3 rounded-lg group">
                 <div class="flex items-center gap-4">
                     {% if event.flyer %}<img src="/static/{{ event.flyer }}" class="w-10 h-14 object-cover rounded shadow-sm border border-gray-200">{% else %}<div class="w-10 h-14 bg-gray-100 rounded flex items-center justify-center border border-gray-200"><i class="fas fa-image text-gray-300"></i></div>{% endif %}
-                    <div><div class="font-bold text-sm text-gray-900">{{ event.date_str }}</div><div class="text-xs text-gray-500 flex items-center gap-2"><span><i class="far fa-clock mr-1"></i>{{ event.time_str }}</span><span>{{ event.guests|length }} Artistes</span></div></div>
+                    <div><div class="font-bold text-sm text-gray-900">{{ event.date_str }}</div><div class="text-xs text-gray-500">{{ event.guests|length }} Artistes</div></div>
                 </div>
                 <div class="flex gap-2">
                     <button onclick='editEvent({{ event|tojson }})' class="bg-yellow-400 text-yellow-900 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-yellow-500 transition shadow-sm"><i class="fas fa-pen text-xs"></i></button>
                     <a href="/delete_event/{{ event.id }}" onclick="return confirm('Supprimer ?')" class="bg-red-100 text-red-500 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-200 transition"><i class="fas fa-trash text-xs"></i></a>
                 </div>
             </div>
-            {% else %}<div class="text-center py-8 text-gray-400 italic">Aucune soirée programmée.</div>{% endfor %}
+            {% else %}<div class="text-center py-8 text-gray-400 italic">Aucune soirée.</div>{% endfor %}
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-sm border" id="artists">
@@ -87,30 +86,47 @@
                     
                     <form action="/update_artist_profile" method="POST" enctype="multipart/form-data" class="space-y-4">
                         <input type="hidden" name="artist_id" value="{{ id }}">
+                        
                         <div class="flex items-center gap-4 mb-2">
-                            <div class="relative w-14 h-14 group">
-                                <div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-purple-500 shadow-sm overflow-hidden">
+                            <div class="relative group w-16 h-16">
+                                <div class="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-purple-500 shadow-sm overflow-hidden">
                                     <img src="/static/{{ artist.main_photo }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://via.placeholder.com/150'">
                                 </div>
                                 
-                                <label for="photo_upload_{{ id }}" class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 cursor-pointer hover:bg-blue-600 w-6 h-6 flex items-center justify-center shadow-sm z-20" title="Modifier la photo">
-                                    <i class="fas fa-pen text-[10px]"></i>
+                                <label class="absolute -bottom-1 -right-1 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 shadow-lg z-20 border-2 border-white" title="Changer la photo">
+                                    <i class="fas fa-pen text-xs"></i>
+                                    <input type="file" name="main_photo_file" class="hidden" onchange="this.form.submit()">
                                 </label>
-                                <input type="file" id="photo_upload_{{ id }}" name="main_photo_file" class="hidden" onchange="this.parentElement.parentElement.parentElement.querySelector('button').click()"> {% if artist.main_photo %}
-                                <a href="/delete_artist_photo/{{ id }}" onclick="return confirm('Supprimer la photo ?')" class="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[8px] hover:bg-red-600 z-10"><i class="fas fa-times"></i></a>
-                                {% endif %}
                             </div>
 
-                            <h3 class="font-bold text-lg text-gray-900">{{ artist.name }}</h3>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg text-gray-900">{{ artist.name }}</h3>
+                                <p class="text-[10px] text-gray-400">Cliquez sur le crayon bleu pour changer la photo.</p>
+                            </div>
                         </div>
+
                         <div><label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Biographie</label><textarea name="bio" rows="3" class="w-full border p-3 rounded-lg text-sm bg-white focus:ring-2 ring-blue-100 outline-none">{{ artist.bio }}</textarea></div>
-                        <div class="border-2 border-dashed border-gray-300 p-3 rounded-lg text-center relative transition hover:border-blue-400 hover:bg-blue-50 group cursor-pointer"><i class="fas fa-images text-xl text-gray-400 mb-1 group-hover:text-blue-400"></i><p class="text-xs text-gray-600 font-bold">Ajouter photos galerie</p><input type="file" name="gallery[]" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></div>
-                        <button class="bg-blue-600 text-white px-4 py-3 rounded-lg text-xs font-bold w-full hover:bg-blue-700 transition shadow-sm">Enregistrer les modifications</button>
+                        
+                        <div class="border-2 border-dashed border-gray-300 p-3 rounded-lg text-center relative transition hover:border-blue-400 hover:bg-blue-50 group cursor-pointer">
+                            <i class="fas fa-images text-xl text-gray-400 mb-1 group-hover:text-blue-400"></i>
+                            <p class="text-xs text-gray-600 font-bold">Ajouter photos galerie</p>
+                            <input type="file" name="gallery[]" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="this.form.submit()">
+                        </div>
+                        <button class="bg-black text-white px-4 py-3 rounded-lg text-xs font-bold w-full hover:bg-gray-800 transition shadow-sm">SAUVEGARDER BIO</button>
                     </form>
+                    
+                    {% if artist.gallery %}
+                    <div class="flex gap-2 mt-4 overflow-x-auto pb-2">
+                        {% for photo in artist.gallery %}
+                        <img src="/static/{{ photo }}" class="w-12 h-12 rounded-lg object-cover border border-gray-200">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
         </div>
+
     </div>
 
     <script>
@@ -123,8 +139,9 @@
             }
         }
         function addGuestField(name='', desc='') {
-            const div = document.createElement('div'); div.className = 'flex flex-col md:flex-row gap-2 items-start bg-white p-3 rounded-lg border shadow-sm animate-[fadeIn_0.3s_ease-out]';
-            div.innerHTML = `<div class="flex-1 w-full space-y-2"><div class="flex flex-col md:flex-row gap-2"><input type="text" name="guest_name[]" value="${name}" placeholder="Nom" class="flex-1 border p-2 rounded text-sm font-bold bg-gray-50 focus:bg-white" required><input type="text" name="guest_desc[]" value="${desc}" placeholder="Titre court" class="flex-1 border p-2 rounded text-sm bg-gray-50 focus:bg-white"></div><div class="relative border border-dashed rounded p-2 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer"><span class="text-xs text-gray-500 font-medium"><i class="fas fa-camera mr-1"></i> Photo Visage (Si nouveau)</span><input type="file" name="guest_photo[]" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="this.previousElementSibling.innerText='✅ Photo sélectionnée'"><input type="hidden" name="existing_guest_photo[]" value=""></div></div><button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 p-2 transition self-end md:self-start"><i class="fas fa-times"></i></button>`;
+            const div = document.createElement('div'); 
+            div.className = 'flex flex-col md:flex-row gap-2 items-start bg-white p-3 rounded-lg border shadow-sm animate-[fadeIn_0.3s_ease-out]';
+            div.innerHTML = `<div class="flex-1 w-full space-y-2"><div class="flex flex-col md:flex-row gap-2"><input type="text" name="guest_name[]" value="${name}" placeholder="Nom Artiste" class="flex-1 border p-2 rounded text-sm font-bold bg-gray-50 focus:bg-white" required><input type="text" name="guest_desc[]" value="${desc}" placeholder="Titre (ex: Invité)" class="flex-1 border p-2 rounded text-sm bg-gray-50 focus:bg-white"></div><div class="relative border border-dashed rounded p-2 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer"><span class="text-xs text-gray-500 font-medium"><i class="fas fa-camera mr-1"></i> Photo (Si nouveau)</span><input type="file" name="guest_photo[]" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="this.previousElementSibling.innerText='✅ Photo prête'"></div></div><button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 p-2 transition self-end md:self-start"><i class="fas fa-times"></i></button>`;
             document.getElementById('guests-container').appendChild(div);
         }
         function editEvent(event) {
@@ -133,19 +150,22 @@
             const submitBtn = document.getElementById('submit-btn'); submitBtn.innerText = "ENREGISTRER LES MODIFICATIONS"; submitBtn.className = "flex-1 bg-yellow-500 text-white py-4 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg";
             document.getElementById('cancel-btn').classList.remove('hidden'); document.getElementById('btn-reset-top').classList.remove('hidden');
             document.getElementById('event_id').value = event.id; document.getElementById('date_str').value = event.date_str; document.getElementById('time_str').value = event.time_str; document.getElementById('link').value = event.link; document.getElementById('description').value = event.description || '';
+            
             if(event.flyer) { 
-                document.getElementById('flyer-text').innerText = "✅ Affiche conservée (Cliquez pour remplacer)"; 
+                document.getElementById('flyer-text').innerText = "✅ Affiche actuelle conservée"; 
                 document.getElementById('flyer-box').classList.add('bg-green-50', 'border-green-300');
-                const delBtn = document.getElementById('delete-flyer-btn'); delBtn.classList.remove('hidden');
-                delBtn.innerHTML = `<a href="/delete_event_image/${event.id}" class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold" onclick="return confirm('Supprimer l\'affiche ?')">Supprimer</a>`;
-            } else { document.getElementById('delete-flyer-btn').classList.add('hidden'); }
+                document.getElementById('delete-flyer-btn').classList.remove('hidden');
+            } else { 
+                document.getElementById('delete-flyer-btn').classList.add('hidden'); 
+            }
+            
             const container = document.getElementById('guests-container'); container.innerHTML = '';
             if(event.guests && event.guests.length > 0) { event.guests.forEach(g => addGuestField(g.name, g.desc)); } else { addGuestField(); }
         }
         function resetForm() {
             document.getElementById('main-form').reset(); document.getElementById('event_id').value = '';
             document.getElementById('form-title').innerText = "Ajouter une Soirée";
-            const submitBtn = document.getElementById('submit-btn'); submitBtn.innerText = "PUBLIER LA SOIRÉE"; submitBtn.className = "flex-1 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg transform hover:scale-[1.01]";
+            const submitBtn = document.getElementById('submit-btn'); submitBtn.innerText = "PUBLIER LA SOIRÉE"; submitBtn.className = "flex-1 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg";
             document.getElementById('cancel-btn').classList.add('hidden'); document.getElementById('btn-reset-top').classList.add('hidden');
             document.getElementById('guests-container').innerHTML = ''; addGuestField();
             document.getElementById('flyer-text').innerText = "Télécharger Affiche (Format Portrait)"; document.getElementById('flyer-box').className = "border-2 border-dashed border-gray-300 p-4 rounded-xl text-center relative transition group cursor-pointer hover:border-blue-400";

@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "david_final_key_v15_secure"
+app.secret_key = "david_final_key_v16_secure"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 
@@ -73,6 +73,7 @@ def save_event():
     data = load_data()
     event_id = request.form.get('event_id')
     is_new = not event_id
+    
     if is_new:
         event_id = uuid.uuid4().hex
         event = {"id": event_id, "guests": []}
@@ -95,21 +96,21 @@ def save_event():
     
     for i, name in enumerate(names):
         if name.strip():
-            # Check existing artist by name
             exist_id = next((aid for aid, a in data['artists'].items() if a['name'].lower() == name.strip().lower()), None)
             artist_id = exist_id if exist_id else uuid.uuid4().hex
             
             if artist_id not in data['artists']:
                 data['artists'][artist_id] = { "id": artist_id, "name": name, "bio": "Biographie...", "main_photo": None, "gallery": [] }
             
-            # Update photo only if new one uploaded in the "New Guest" field
             if i < len(photos) and photos[i].filename:
                 p = save_image(photos[i])
                 if p: data['artists'][artist_id]['main_photo'] = p
             
             event['guests'].append({ "id": artist_id, "name": name, "desc": descs[i], "photo": data['artists'][artist_id]['main_photo'] })
 
-    if is_new: data['events'].insert(0, event)
+    # MODIFICATION ICI : 'append' au lieu de 'insert(0)' pour garder l'ordre chronologique d'ajout
+    if is_new: data['events'].append(event)
+    
     save_data(data)
     flash("✅ Soirée enregistrée", "success")
     return redirect(url_for('dashboard'))
@@ -121,13 +122,13 @@ def update_artist_profile():
     aid = request.form.get('artist_id')
     if aid in data['artists']:
         data['artists'][aid]['bio'] = request.form.get('bio')
+        
         # GESTION REMPLACEMENT PHOTO PRINCIPALE
         main_photo = request.files.get('main_photo_file')
         if main_photo and main_photo.filename:
             path = save_image(main_photo)
             if path: data['artists'][aid]['main_photo'] = path
-        
-        # GESTION GALERIE
+            
         for f in request.files.getlist('gallery[]'):
             path = save_image(f)
             if path: data['artists'][aid]['gallery'].append(path)
