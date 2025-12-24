@@ -5,10 +5,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "david_final_key_v16_secure"
+app.secret_key = "david_final_key_v17_secure"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
-
 DB_FILE = "data.json"
 DEFAULT_DATA = { "settings": { "title": "Le Rendez-vous du Dimanche", "description": "", "waze_link": "", "instagram": "", "bg_image": "bg_stage.jpg" }, "events": [], "artists": {} }
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -73,7 +72,6 @@ def save_event():
     data = load_data()
     event_id = request.form.get('event_id')
     is_new = not event_id
-    
     if is_new:
         event_id = uuid.uuid4().hex
         event = {"id": event_id, "guests": []}
@@ -108,9 +106,8 @@ def save_event():
             
             event['guests'].append({ "id": artist_id, "name": name, "desc": descs[i], "photo": data['artists'][artist_id]['main_photo'] })
 
-    # MODIFICATION ICI : 'append' au lieu de 'insert(0)' pour garder l'ordre chronologique d'ajout
+    # MODIF CRITIQUE: Ajout à la fin (append) pour ordre chrono
     if is_new: data['events'].append(event)
-    
     save_data(data)
     flash("✅ Soirée enregistrée", "success")
     return redirect(url_for('dashboard'))
@@ -122,17 +119,13 @@ def update_artist_profile():
     aid = request.form.get('artist_id')
     if aid in data['artists']:
         data['artists'][aid]['bio'] = request.form.get('bio')
-        
-        # GESTION REMPLACEMENT PHOTO PRINCIPALE
         main_photo = request.files.get('main_photo_file')
         if main_photo and main_photo.filename:
             path = save_image(main_photo)
             if path: data['artists'][aid]['main_photo'] = path
-            
         for f in request.files.getlist('gallery[]'):
             path = save_image(f)
             if path: data['artists'][aid]['gallery'].append(path)
-            
         flash("✅ Profil mis à jour", "success")
     save_data(data)
     return redirect(url_for('dashboard') + "#artists")
