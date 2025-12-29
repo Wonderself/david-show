@@ -34,15 +34,17 @@
                 <div><label class="text-xs font-bold text-gray-500 uppercase block mb-1">Lien Billetterie</label><input type="text" name="link" id="link" placeholder="https://..." required class="border p-3 rounded-lg w-full text-sm bg-gray-50 focus:bg-white transition"></div>
                 <div><label class="text-xs font-bold text-gray-500 uppercase block mb-1">Description</label><textarea name="description" id="description" rows="2" placeholder="Détails..." class="border p-3 rounded-lg w-full text-sm bg-gray-50 focus:bg-white transition"></textarea></div>
                 
+                <!-- Affiche principale -->
                 <div class="border-2 border-dashed border-gray-300 p-4 rounded-xl text-center relative transition group cursor-pointer hover:border-blue-400" id="flyer-box">
                     <i class="fas fa-image text-2xl text-gray-400 mb-2 group-hover:text-blue-400 transition"></i>
                     <p class="text-sm font-bold text-gray-600" id="flyer-text">Télécharger Affiche (Format Portrait)</p>
                     <input type="file" name="flyer_file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleUpload(this, 'flyer-box', 'flyer-text')">
                     <div id="delete-flyer-btn" class="hidden absolute top-2 right-2 z-10">
-                        <a href="#" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold shadow-lg hover:bg-red-600" onclick="deleteFlyer(); return false;">Supprimer</a>
+                        <a href="#" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold shadow-lg hover:bg-red-600" onclick="if(confirm('Supprimer l\'affiche ?')) window.location.href='/delete_event_image/'+document.getElementById('event_id').value; return false;">Supprimer</a>
                     </div>
                 </div>
                 
+                <!-- Photos supplémentaires -->
                 <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
                     <label class="text-xs font-bold text-purple-600 uppercase block mb-2"><i class="fas fa-images mr-1"></i> Photos supplémentaires (optionnel)</label>
                     <p class="text-xs text-gray-500 mb-3">Ajoutez des photos du lieu, ambiance, coulisses...</p>
@@ -79,7 +81,7 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="editEventById('{{ event.id }}')" class="bg-yellow-400 text-yellow-900 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-yellow-500 transition shadow-sm"><i class="fas fa-pen text-xs"></i></button>
+                    <button onclick='editEvent({{ event|tojson|safe }})' class="bg-yellow-400 text-yellow-900 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-yellow-500 transition shadow-sm"><i class="fas fa-pen text-xs"></i></button>
                     <a href="/delete_event/{{ event.id }}" onclick="return confirm('Supprimer ?')" class="bg-red-100 text-red-500 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-200 transition"><i class="fas fa-trash text-xs"></i></a>
                 </div>
             </div>
@@ -129,35 +131,12 @@
             </div>
         </div>
     </div>
-    
     <script>
-        // Stocker les données des événements de manière sécurisée
-        var eventsData = {};
-        {% for event in data.events %}
-        eventsData['{{ event.id }}'] = {
-            id: '{{ event.id }}',
-            date_str: '{{ event.date_str|default("", true)|e }}',
-            time_str: '{{ event.time_str|default("", true)|e }}',
-            link: '{{ event.link|default("", true)|e }}',
-            description: `{{ event.description|default("", true)|replace("\r\n", "\\n")|replace("\n", "\\n")|e }}`,
-            flyer: '{{ event.flyer|default("", true) }}',
-            photos: [{% for p in event.photos|default([], true) %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %}],
-            guests: [{% for g in event.guests|default([], true) %}{name: '{{ g.name|e }}', desc: '{{ g.desc|default("", true)|e }}'}{% if not loop.last %},{% endif %}{% endfor %}]
-        };
-        {% endfor %}
-        
-        function deleteFlyer() {
-            var eventId = document.getElementById('event_id').value;
-            if(eventId && confirm('Supprimer l\'affiche ?')) {
-                window.location.href = '/delete_event_image/' + eventId;
-            }
-        }
-        
         function handleUpload(input, boxId, textId) {
-            var box = document.getElementById(boxId);
-            var text = document.getElementById(textId);
+            const box = document.getElementById(boxId);
+            const text = document.getElementById(textId);
             if (input.files && input.files[0]) {
-                var file = input.files[0];
+                const file = input.files[0];
                 if(file.type.startsWith('image/')) {
                     box.classList.add('upload-success');
                     box.classList.remove('upload-error');
@@ -171,10 +150,10 @@
         }
         
         function handleMultiUpload(input, boxId, textId) {
-            var box = document.getElementById(boxId);
-            var text = document.getElementById(textId);
+            const box = document.getElementById(boxId);
+            const text = document.getElementById(textId);
             if (input.files && input.files.length > 0) {
-                var count = input.files.length;
+                const count = input.files.length;
                 box.classList.add('upload-success');
                 box.classList.remove('upload-error');
                 text.innerText = "✅ " + count + " photo(s) sélectionnée(s)";
@@ -182,37 +161,26 @@
             }
         }
         
-        function addGuestField(name, desc) {
-            name = name || '';
-            desc = desc || '';
-            var div = document.createElement('div'); 
-            div.className = 'flex flex-col md:flex-row gap-2 items-start bg-white p-3 rounded-lg border shadow-sm';
-            div.innerHTML = '<div class="flex-1 w-full space-y-2"><div class="flex flex-col md:flex-row gap-2"><input type="text" name="guest_name[]" value="' + name + '" placeholder="Nom Artiste" class="flex-1 border p-2 rounded text-sm font-bold bg-gray-50 focus:bg-white" required><input type="text" name="guest_desc[]" value="' + desc + '" placeholder="Titre (ex: Invité)" class="flex-1 border p-2 rounded text-sm bg-gray-50 focus:bg-white"></div><div class="relative border border-dashed rounded p-2 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer"><span class="text-xs text-gray-500 font-medium"><i class="fas fa-camera mr-1"></i> Photo (Si nouveau)</span><input type="file" name="guest_photo[]" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="this.previousElementSibling.innerText=\'✅ Photo prête\'"></div></div><button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 p-2 transition self-end md:self-start"><i class="fas fa-times"></i></button>';
+        function addGuestField(name='', desc='') {
+            const div = document.createElement('div'); 
+            div.className = 'flex flex-col md:flex-row gap-2 items-start bg-white p-3 rounded-lg border shadow-sm animate-[fadeIn_0.3s_ease-out]';
+            div.innerHTML = `<div class="flex-1 w-full space-y-2"><div class="flex flex-col md:flex-row gap-2"><input type="text" name="guest_name[]" value="${name}" placeholder="Nom Artiste" class="flex-1 border p-2 rounded text-sm font-bold bg-gray-50 focus:bg-white" required><input type="text" name="guest_desc[]" value="${desc}" placeholder="Titre (ex: Invité)" class="flex-1 border p-2 rounded text-sm bg-gray-50 focus:bg-white"></div><div class="relative border border-dashed rounded p-2 text-center bg-gray-50 hover:bg-gray-100 transition cursor-pointer"><span class="text-xs text-gray-500 font-medium"><i class="fas fa-camera mr-1"></i> Photo (Si nouveau)</span><input type="file" name="guest_photo[]" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="this.previousElementSibling.innerText='✅ Photo prête'"></div></div><button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500 p-2 transition self-end md:self-start"><i class="fas fa-times"></i></button>`;
             document.getElementById('guests-container').appendChild(div);
         }
         
-        function editEventById(eventId) {
-            var event = eventsData[eventId];
-            if(!event) {
-                alert('Événement non trouvé');
-                return;
-            }
-            
+        function editEvent(event) {
             document.getElementById('event-form-section').scrollIntoView({behavior: 'smooth'});
             document.getElementById('form-title').innerText = "Modifier la Soirée";
-            
-            var submitBtn = document.getElementById('submit-btn');
+            const submitBtn = document.getElementById('submit-btn');
             submitBtn.innerText = "ENREGISTRER LES MODIFICATIONS";
             submitBtn.className = "flex-1 bg-yellow-500 text-white py-4 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg";
-            
             document.getElementById('cancel-btn').classList.remove('hidden');
             document.getElementById('btn-reset-top').classList.remove('hidden');
-            
             document.getElementById('event_id').value = event.id;
-            document.getElementById('date_str').value = event.date_str;
-            document.getElementById('time_str').value = event.time_str;
-            document.getElementById('link').value = event.link;
-            document.getElementById('description').value = event.description.replace(/\\n/g, '\n');
+            document.getElementById('date_str').value = event.date_str || '';
+            document.getElementById('time_str').value = event.time_str || '';
+            document.getElementById('link').value = event.link || '';
+            document.getElementById('description').value = event.description || '';
             
             if(event.flyer) { 
                 document.getElementById('flyer-text').innerText = "✅ Affiche conservée";
@@ -222,28 +190,29 @@
                 document.getElementById('delete-flyer-btn').classList.add('hidden');
             }
             
-            var photosContainer = document.getElementById('existing-photos');
-            var photosGrid = document.getElementById('existing-photos-grid');
+            // Afficher les photos existantes
+            const photosContainer = document.getElementById('existing-photos');
+            const photosGrid = document.getElementById('existing-photos-grid');
             photosGrid.innerHTML = '';
             if(event.photos && event.photos.length > 0) {
                 photosContainer.classList.remove('hidden');
-                for(var i = 0; i < event.photos.length; i++) {
-                    var photo = event.photos[i];
-                    var photoDiv = document.createElement('div');
+                event.photos.forEach((photo, index) => {
+                    const photoDiv = document.createElement('div');
                     photoDiv.className = 'relative';
-                    photoDiv.innerHTML = '<img src="/static/' + photo + '" class="w-16 h-16 object-cover rounded border"><a href="/delete_event_photo/' + event.id + '/' + i + '" onclick="return confirm(\'Supprimer cette photo ?\')" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs hover:bg-red-600">×</a>';
+                    photoDiv.innerHTML = `
+                        <img src="/static/${photo}" class="w-16 h-16 object-cover rounded border">
+                        <a href="/delete_event_photo/${event.id}/${index}" onclick="return confirm('Supprimer cette photo ?')" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs hover:bg-red-600">×</a>
+                    `;
                     photosGrid.appendChild(photoDiv);
-                }
+                });
             } else {
                 photosContainer.classList.add('hidden');
             }
             
-            var container = document.getElementById('guests-container');
+            const container = document.getElementById('guests-container');
             container.innerHTML = '';
             if(event.guests && event.guests.length > 0) {
-                for(var j = 0; j < event.guests.length; j++) {
-                    addGuestField(event.guests[j].name, event.guests[j].desc);
-                }
+                event.guests.forEach(g => addGuestField(g.name || '', g.desc || ''));
             } else {
                 addGuestField();
             }
@@ -253,7 +222,7 @@
             document.getElementById('main-form').reset();
             document.getElementById('event_id').value = '';
             document.getElementById('form-title').innerText = "Ajouter une Soirée";
-            var submitBtn = document.getElementById('submit-btn');
+            const submitBtn = document.getElementById('submit-btn');
             submitBtn.innerText = "PUBLIER LA SOIRÉE";
             submitBtn.className = "flex-1 bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg";
             document.getElementById('cancel-btn').classList.add('hidden');
@@ -268,8 +237,6 @@
             document.getElementById('existing-photos').classList.add('hidden');
             document.getElementById('existing-photos-grid').innerHTML = '';
         }
-        
-        // Initialisation
         addGuestField();
     </script>
 </body>
