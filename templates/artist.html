@@ -4,17 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ artist.name }}</title>
-    
-    <!-- Meta Tags pour partage réseaux sociaux -->
-    <meta property="og:title" content="{{ artist.name }} - Le Rendez-vous du Dimanche">
-    <meta property="og:description" content="{{ artist.bio[:150] if artist.bio else 'Découvrez le profil de ' + artist.name }}">
-    {% if artist.main_photo %}
-    <meta property="og:image" content="{{ request.url_root }}static/{{ artist.main_photo }}">
-    {% else %}
-    <meta property="og:image" content="{{ request.url_root }}static/logo.jpg">
-    {% endif %}
-    <meta property="og:type" content="profile">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -26,9 +15,7 @@
 <body class="min-h-screen relative">
 
     <div class="fixed inset-0 z-0">
-        {% if settings.bg_image %}
-        <img src="/static/{{ settings.bg_image }}" class="w-full h-full object-cover opacity-20" onerror="this.style.display='none';">
-        {% endif %}
+        <img src="/static/{{ settings.bg_image }}" class="w-full h-full object-cover opacity-20">
         <div class="absolute inset-0 bg-black/80"></div>
     </div>
 
@@ -38,36 +25,30 @@
         </a>
 
         <div class="flex flex-col items-center text-center mb-10">
-            <div class="w-40 h-40 sm:w-48 sm:h-48 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl mb-6">
+            <div class="w-48 h-48 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl mb-6">
                 <div class="w-full h-full rounded-full overflow-hidden bg-black">
-                    {% if artist.main_photo %}
                     <img src="/static/{{ artist.main_photo }}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name={{ artist.name|urlencode }}&size=256&background=1a1a1a&color=ec4899'">
-                    {% else %}
-                    <img src="https://ui-avatars.com/api/?name={{ artist.name|urlencode }}&size=256&background=1a1a1a&color=ec4899" class="w-full h-full object-cover">
-                    {% endif %}
                 </div>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-black uppercase mb-2">{{ artist.name }}</h1>
+            <h1 class="text-4xl font-black uppercase mb-2">{{ artist.name }}</h1>
             <div class="h-1 w-20 bg-pink-500 rounded-full"></div>
         </div>
 
-        <div class="glass p-6 sm:p-8 rounded-2xl mb-10 overflow-hidden">
+        <div class="glass p-8 rounded-2xl mb-10 overflow-hidden">
             <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Biographie</h2>
             <div class="text-gray-200 leading-relaxed font-light whitespace-pre-wrap break-words">
                 {{ artist.bio }}
             </div>
         </div>
 
-        {% if artist.gallery and artist.gallery|length > 0 %}
+        {% if artist.gallery %}
         <div>
             <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Galerie Photos</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {% for photo in artist.gallery %}
-                {% if photo %}
                 <div class="aspect-square rounded-xl overflow-hidden glass cursor-pointer hover:opacity-100 transition">
-                    <img src="/static/{{ photo }}" class="w-full h-full object-cover hover:scale-110 transition duration-500" onerror="this.parentElement.style.display='none'">
+                    <img src="/static/{{ photo }}" class="w-full h-full object-cover hover:scale-110 transition duration-500">
                 </div>
-                {% endif %}
                 {% endfor %}
             </div>
         </div>

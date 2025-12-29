@@ -5,25 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ data.settings.title }}</title>
     
-    <!-- Meta Tags pour partage réseaux sociaux -->
+    <!-- Vignette partage réseaux sociaux -->
     <meta property="og:title" content="{{ data.settings.title }}">
     <meta property="og:description" content="Spectacle Stand-up en français à Netanya - Présenté par David Smadja">
     <meta property="og:image" content="{{ request.url_root }}static/logo.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:locale" content="fr_FR">
-    
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ data.settings.title }}">
-    <meta name="twitter:description" content="Spectacle Stand-up en français à Netanya - Présenté par David Smadja">
     <meta name="twitter:image" content="{{ request.url_root }}static/logo.jpg">
-    
-    <!-- Autres meta -->
-    <meta name="description" content="Spectacle Stand-up en français à Netanya - Présenté par David Smadja">
-    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -33,7 +21,7 @@
         body { font-family: 'Montserrat', sans-serif; background: #000; color: white; }
         .glass { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
         .accordion-content { transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; max-height: 0; opacity: 0; overflow: hidden; }
-        .accordion-open { max-height: 5000px; opacity: 1; }
+        .accordion-open { max-height: 3000px; opacity: 1; }
         .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes strongPulse { 
@@ -43,141 +31,109 @@
         }
         .btn-reserve-mega { animation: strongPulse 2s infinite; }
         .font-arial { font-family: Arial, Helvetica, sans-serif; }
-        
-        /* Responsive fixes */
-        @media (max-width: 640px) {
-            .event-photos-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
     </style>
 </head>
 <body class="min-h-screen relative flex items-center justify-center p-2 md:p-6 pb-24 lg:pb-6">
 
     <div class="fixed inset-0 z-0">
-        {% if data.settings.bg_image %}
-        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30" onerror="this.style.display='none';">
-        {% endif %}
+        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30" onerror="this.src='https://via.placeholder.com/1920x1080/000000/FFFFFF?text=Background';">
         <div class="absolute inset-0 bg-black/70"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+    <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-4 lg:gap-6 fade-in-up order-1">
+        <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-6 fade-in-up order-1">
             <div class="flex flex-row items-center justify-center lg:justify-start gap-4">
-                <div class="relative w-32 sm:w-40 lg:w-56 aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl group shrink-0 transition transform hover:scale-105">
-                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2 transition duration-500" alt="Logo">
+                <div class="relative w-40 lg:w-56 aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl group shrink-0 transition transform hover:scale-105">
+                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2 transition duration-500">
                 </div>
             </div>
             
             <div class="text-center lg:text-left mt-2">
                 <div class="text-pink-500 font-bold text-[10px] tracking-widest uppercase mb-1">SPECTACLE EN FRANÇAIS</div>
-                <h1 class="font-arial font-bold text-2xl sm:text-3xl md:text-4xl text-white uppercase leading-tight tracking-tight">
+                <h1 class="font-arial font-bold text-3xl md:text-4xl text-white uppercase leading-tight tracking-tight">
                     Présenté par<br>DAVID SMADJA
                 </h1>
             </div>
             
-            <div class="glass p-4 sm:p-5 rounded-2xl space-y-4 shadow-2xl border-t border-white/10">
+            <div class="glass p-5 rounded-2xl space-y-4 shadow-2xl border-t border-white/10">
                 {% if data.settings.description %}
                 <p class="text-gray-300 text-xs leading-relaxed font-light text-left whitespace-pre-wrap">{{ data.settings.description }}</p>
                 {% endif %}
                 <div class="space-y-2 pt-2">
-                    {% if data.settings.waze_link %}
-                    <a href="{{ data.settings.waze_link }}" target="_blank" class="flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 transition group">
-                        <i class="fab fa-waze text-xl sm:text-2xl text-blue-400 group-hover:scale-110 transition"></i>
+                    <a href="{{ data.settings.waze_link }}" target="_blank" class="flex items-center gap-4 p-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 transition group">
+                        <i class="fab fa-waze text-2xl text-blue-400 group-hover:scale-110 transition"></i>
                         <div class="text-left">
                             <div class="font-black text-[10px] text-blue-400 uppercase tracking-widest">Localisation</div>
                             <div class="font-bold text-xs text-blue-100">Y aller avec Waze</div>
                         </div>
                     </a>
-                    {% endif %}
-                    {% if data.settings.instagram %}
-                    <a href="{{ data.settings.instagram }}" target="_blank" class="flex items-center gap-3 sm:gap-4 p-3 rounded-xl bg-gradient-to-r from-pink-600/20 to-purple-600/20 hover:from-pink-600/30 hover:to-purple-600/30 border border-pink-500/30 transition group">
-                        <i class="fab fa-instagram text-xl sm:text-2xl text-pink-400 group-hover:scale-110 transition"></i>
+                    <a href="{{ data.settings.instagram }}" target="_blank" class="flex items-center gap-4 p-3 rounded-xl bg-gradient-to-r from-pink-600/20 to-purple-600/20 hover:from-pink-600/30 hover:to-purple-600/30 border border-pink-500/30 transition group">
+                        <i class="fab fa-instagram text-2xl text-pink-400 group-hover:scale-110 transition"></i>
                         <div class="text-left">
                             <div class="font-black text-[10px] text-pink-400 uppercase tracking-widest">Suivez-nous</div>
                             <div class="font-bold text-xs text-pink-100">Instagram Officiel</div>
                         </div>
                     </a>
-                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="lg:col-span-8 space-y-4 sm:space-y-6 fade-in-up order-2" style="animation-delay: 0.1s;">
+        <div class="lg:col-span-8 space-y-6 fade-in-up order-2" style="animation-delay: 0.1s;">
             {% for event in data.events %}
             <div x-data="{ open: {{ 'true' if loop.first else 'false' }} }" 
-                 class="glass rounded-2xl sm:rounded-3xl overflow-hidden border border-white/5 transition hover:border-pink-500/30 shadow-2xl">
-                <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between bg-white/5 hover:bg-white/10 transition gap-4 sm:gap-6 cursor-pointer" @click="open = !open">
-                    <div class="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
-                        <div class="bg-black/80 border border-pink-500/30 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-center min-w-[80px] sm:min-w-[100px] flex flex-col justify-center shadow-lg relative overflow-hidden group">
+                 class="glass rounded-3xl overflow-hidden border border-white/5 transition hover:border-pink-500/30 shadow-2xl">
+                <div class="p-5 flex flex-col sm:flex-row items-center justify-between bg-white/5 hover:bg-white/10 transition gap-6 cursor-pointer" @click="open = !open">
+                    <div class="flex items-center gap-6 w-full sm:w-auto">
+                        <div class="bg-black/80 border border-pink-500/30 p-3 rounded-2xl text-center min-w-[100px] flex flex-col justify-center shadow-lg relative overflow-hidden group">
                             <div class="absolute inset-0 bg-pink-500/20 transform scale-y-0 group-hover:scale-y-100 transition origin-bottom duration-300"></div>
-                            <div class="font-bold text-[9px] sm:text-[10px] leading-none text-pink-400 uppercase tracking-widest mb-1 relative z-10">{{ event.date_str.split(' ')[0] }}</div>
-                            <div class="font-black text-3xl sm:text-4xl text-white leading-none relative z-10 my-1">{{ event.date_str.split(' ')[1] }}</div>
-                            <div class="font-bold text-[9px] sm:text-[10px] text-gray-300 uppercase tracking-wide relative z-10">{{ event.date_str.split(' ')[2] if event.date_str.split(' ')|length > 2 else '' }}</div>
+                            <div class="font-bold text-[10px] leading-none text-pink-400 uppercase tracking-widest mb-1 relative z-10">{{ event.date_str.split(' ')[0] }}</div>
+                            <div class="font-black text-4xl text-white leading-none relative z-10 my-1">{{ event.date_str.split(' ')[1] }}</div>
+                            <div class="font-bold text-[10px] text-gray-300 uppercase tracking-wide relative z-10">{{ event.date_str.split(' ')[2] if event.date_str.split(' ')|length > 2 else '' }}</div>
                         </div>
                         <div class="flex-1 text-center sm:text-left">
-                            <h3 class="font-black text-xl sm:text-2xl text-white uppercase tracking-tight leading-none mb-2">Plateau Stand-up</h3>
-                            <div class="text-sm text-gray-400 flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-3 font-medium">
-                                <span class="bg-white/10 px-2 sm:px-3 py-1 rounded-full text-white text-xs"><i class="far fa-clock mr-1 sm:mr-2"></i>{{ event.time_str }}</span>
+                            <h3 class="font-black text-2xl text-white uppercase tracking-tight leading-none mb-2">Plateau Stand-up</h3>
+                            <div class="text-sm text-gray-400 flex flex-wrap justify-center sm:justify-start items-center gap-3 font-medium">
+                                <span class="bg-white/10 px-3 py-1 rounded-full text-white text-xs"><i class="far fa-clock mr-2"></i>{{ event.time_str }}</span>
                                 {% if event.guests %}<span class="text-xs text-gray-500">{{ event.guests|length }} Artistes</span>{% endif %}
                             </div>
                         </div>
                     </div>
                     <div class="hidden sm:flex items-center gap-4">
                         {% if event.link %}
-                        <a href="{{ event.link }}" target="_blank" @click.stop class="btn-reserve-mega bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-white/20 px-6 lg:px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:scale-105 transition">RÉSERVER</a>
+                        <a href="{{ event.link }}" target="_blank" @click.stop class="btn-reserve-mega bg-gradient-to-r from-pink-600 to-purple-600 text-white border border-white/20 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:scale-105 transition">RÉSERVER</a>
                         {% else %}
-                        <button disabled class="bg-gray-700 text-gray-500 border border-white/10 px-6 lg:px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest cursor-not-allowed">COMPLET</button>
+                        <button disabled class="bg-gray-700 text-gray-500 border border-white/10 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest cursor-not-allowed">COMPLET</button>
                         {% endif %}
                         <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center"><i class="fas fa-chevron-down text-gray-400 text-xs transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i></div>
                     </div>
                 </div>
                 {% if event.link %}
-                <a href="{{ event.link }}" target="_blank" class="sm:hidden block w-full bg-pink-600 text-white text-center font-black py-3 sm:py-4 text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] btn-reserve-mega border-t border-white/10">RÉSERVER MAINTENANT</a>
+                <a href="{{ event.link }}" target="_blank" class="sm:hidden block w-full bg-pink-600 text-white text-center font-black py-4 text-xs uppercase tracking-[0.2em] btn-reserve-mega border-t border-white/10">RÉSERVER MAINTENANT</a>
                 {% endif %}
                 <div class="accordion-content bg-black/40" :class="open ? 'accordion-open' : ''">
-                    <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 border-t border-white/5">
+                    <div class="p-6 space-y-8 border-t border-white/5">
                         {% if event.description %}
-                        <div class="text-gray-300 text-sm leading-6 sm:leading-7 font-light border-l-2 border-purple-500 pl-3 sm:pl-4 whitespace-pre-wrap">{{ event.description }}</div>
+                        <div class="text-gray-300 text-sm leading-7 font-light border-l-2 border-purple-500 pl-4 whitespace-pre-wrap">{{ event.description }}</div>
                         {% endif %}
-                        
-                        <div class="flex flex-col gap-6 sm:gap-8">
-                            <!-- Flyer et Photos -->
-                            {% if event.flyer or (event.photos and event.photos|length > 0) %}
-                            <div class="w-full">
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 event-photos-grid">
-                                    {% if event.flyer %}
-                                    <div class="col-span-2 row-span-2">
-                                        <img src="/static/{{ event.flyer }}" class="w-full h-full object-cover rounded-lg shadow-2xl" alt="Affiche">
-                                    </div>
-                                    {% endif %}
-                                    {% if event.photos %}
-                                    {% for photo in event.photos %}
-                                    <div class="aspect-square">
-                                        <img src="/static/{{ photo }}" class="w-full h-full object-cover rounded-lg shadow-lg hover:scale-105 transition cursor-pointer" alt="Photo">
-                                    </div>
-                                    {% endfor %}
-                                    {% endif %}
-                                </div>
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+                            {% if event.flyer %}
+                            <div class="w-full md:w-1/3 shrink-0">
+                                <img src="/static/{{ event.flyer }}" class="w-full h-auto object-cover rounded-lg shadow-2xl" alt="Affiche">
                             </div>
                             {% endif %}
-                            
-                            <!-- Line-up Artistes -->
                             {% if event.guests %}
-                            <div class="w-full">
-                                <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4 sm:mb-6 border-b border-white/10 pb-2">Line-up Artistes</h4>
-                                <div class="flex flex-wrap justify-center sm:justify-start gap-6 sm:gap-10">
+                            <div class="w-full {{ 'md:w-2/3' if event.flyer else 'md:w-full' }}">
+                                <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-2">Line-up Artistes</h4>
+                                <div class="flex flex-wrap justify-center sm:justify-start gap-10">
                                     {% for guest in event.guests %}
-                                    <a href="/artist/{{ guest.id }}" class="flex flex-col items-center gap-2 sm:gap-3 group w-20 sm:w-24 md:w-28 text-center">
-                                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300 relative">
-                                            {% if guest.photo %}
+                                    <a href="/artist/{{ guest.id }}" class="flex flex-col items-center gap-3 group w-24 sm:w-28 text-center">
+                                        <div class="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300 relative">
                                             <img src="/static/{{ guest.photo }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name|urlencode }}&size=128&background=1a1a1a&color=ec4899'">
-                                            {% else %}
-                                            <img src="https://ui-avatars.com/api/?name={{ guest.name|urlencode }}&size=128&background=1a1a1a&color=ec4899" class="w-full h-full rounded-full object-cover bg-black">
-                                            {% endif %}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-[11px] sm:text-xs text-white leading-tight group-hover:text-pink-400 transition">{{ guest.name }}</div>
-                                            <div class="text-[8px] sm:text-[9px] text-gray-500 mt-1 uppercase tracking-wider font-bold group-hover:text-white transition">Voir Profil</div>
+                                            <div class="font-bold text-xs text-white leading-tight group-hover:text-pink-400 transition">{{ guest.name }}</div>
+                                            <div class="text-[9px] text-gray-500 mt-1 uppercase tracking-wider font-bold group-hover:text-white transition">Voir Profil</div>
                                         </div>
                                     </a>
                                     {% endfor %}
@@ -189,7 +145,7 @@
                 </div>
             </div>
             {% endfor %}
-            {% if not data.events %}<div class="text-center py-16 sm:py-20 opacity-50"><p>Aucune date pour le moment.</p></div>{% endif %}
+            {% if not data.events %}<div class="text-center py-20 opacity-50"><p>Aucune date pour le moment.</p></div>{% endif %}
         </div>
     </div>
     <div class="fixed top-2 left-2 z-[100] group"><a href="/admin" class="block w-2 h-2 bg-white/10 hover:bg-white rounded-full transition"></a></div>
