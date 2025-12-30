@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ data.settings.title }}</title>
     
-    <!-- Vignette partage réseaux sociaux -->
+    <!-- ===== VIGNETTE PARTAGE RÉSEAUX SOCIAUX ===== -->
     <meta property="og:title" content="{{ data.settings.title }}">
     <meta property="og:description" content="Spectacle Stand-up en français à Netanya - Présenté par David Smadja">
     <meta property="og:image" content="{{ request.url_root }}static/logo.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:locale" content="fr_FR">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ data.settings.title }}">
+    <meta name="twitter:description" content="Spectacle Stand-up en français à Netanya">
     <meta name="twitter:image" content="{{ request.url_root }}static/logo.jpg">
+    <meta name="description" content="Spectacle Stand-up en français à Netanya - Présenté par David Smadja">
+    <link rel="icon" type="image/jpeg" href="/static/logo.jpg">
+    <!-- ===== FIN VIGNETTE ===== -->
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -21,7 +30,7 @@
         body { font-family: 'Montserrat', sans-serif; background: #000; color: white; }
         .glass { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
         .accordion-content { transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease-in; max-height: 0; opacity: 0; overflow: hidden; }
-        .accordion-open { max-height: 3000px; opacity: 1; }
+        .accordion-open { max-height: 5000px; opacity: 1; }
         .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes strongPulse { 
@@ -36,7 +45,7 @@
 <body class="min-h-screen relative flex items-center justify-center p-2 md:p-6 pb-24 lg:pb-6">
 
     <div class="fixed inset-0 z-0">
-        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30" onerror="this.src='https://via.placeholder.com/1920x1080/000000/FFFFFF?text=Background';">
+        <img src="/static/{{ data.settings.bg_image }}" class="w-full h-full object-cover opacity-30" onerror="this.style.opacity='0'">
         <div class="absolute inset-0 bg-black/70"></div>
     </div>
 
@@ -45,7 +54,7 @@
         <div class="lg:col-span-4 lg:sticky lg:top-6 flex flex-col gap-6 fade-in-up order-1">
             <div class="flex flex-row items-center justify-center lg:justify-start gap-4">
                 <div class="relative w-40 lg:w-56 aspect-square rounded-3xl overflow-hidden border border-white/5 bg-black/50 shadow-xl group shrink-0 transition transform hover:scale-105">
-                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2 transition duration-500">
+                    <img src="/static/logo.jpg" class="w-full h-full object-contain p-2 transition duration-500" alt="Logo">
                 </div>
             </div>
             
@@ -116,20 +125,36 @@
                         {% if event.description %}
                         <div class="text-gray-300 text-sm leading-7 font-light border-l-2 border-purple-500 pl-4 whitespace-pre-wrap">{{ event.description }}</div>
                         {% endif %}
+                        
                         <div class="flex flex-col md:flex-row gap-8 items-start">
-                            {% if event.flyer %}
-                            <div class="w-full md:w-1/3 shrink-0">
-                                <img src="/static/{{ event.flyer }}" class="w-full h-auto object-cover rounded-lg shadow-2xl" alt="Affiche">
+                            <!-- Flyer + Photos supplémentaires -->
+                            {% if event.flyer or (event.photos and event.photos|length > 0) %}
+                            <div class="w-full md:w-1/3 shrink-0 space-y-4">
+                                {% if event.flyer %}
+                                <img src="{{ event.flyer }}" class="w-full h-auto object-cover rounded-lg shadow-2xl" alt="Affiche">
+                                {% endif %}
+                                {% if event.photos and event.photos|length > 0 %}
+                                <div class="grid grid-cols-2 gap-2">
+                                    {% for photo in event.photos %}
+                                    <img src="{{ photo }}" class="w-full aspect-square object-cover rounded-lg shadow-lg" alt="Photo">
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
                             {% endif %}
+                            
                             {% if event.guests %}
-                            <div class="w-full {{ 'md:w-2/3' if event.flyer else 'md:w-full' }}">
+                            <div class="w-full {{ 'md:w-2/3' if event.flyer or (event.photos and event.photos|length > 0) else 'md:w-full' }}">
                                 <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-2">Line-up Artistes</h4>
                                 <div class="flex flex-wrap justify-center sm:justify-start gap-10">
                                     {% for guest in event.guests %}
                                     <a href="/artist/{{ guest.id }}" class="flex flex-col items-center gap-3 group w-24 sm:w-28 text-center">
                                         <div class="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl group-hover:scale-110 transition duration-300 relative">
-                                            <img src="/static/{{ guest.photo }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name|urlencode }}&size=128&background=1a1a1a&color=ec4899'">
+                                            {% if guest.photo %}
+                                            <img src="{{ guest.photo }}" class="w-full h-full rounded-full object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name={{ guest.name|urlencode }}&size=128&background=1a1a1a&color=ec4899'">
+                                            {% else %}
+                                            <img src="https://ui-avatars.com/api/?name={{ guest.name|urlencode }}&size=128&background=1a1a1a&color=ec4899" class="w-full h-full rounded-full object-cover bg-black">
+                                            {% endif %}
                                         </div>
                                         <div>
                                             <div class="font-bold text-xs text-white leading-tight group-hover:text-pink-400 transition">{{ guest.name }}</div>

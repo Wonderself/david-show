@@ -15,7 +15,7 @@
             "guests": [
                 {
                     "id": "1155c6bf15a04add95cf6cfac60fc4fa",
-                    "name": "David Smadja ",
+                    "name": "David Smadja",
                     "desc": "",
                     "photo": ""
                 },
@@ -35,8 +35,9 @@
             "date_str": "Dimanche 4 Janvier",
             "time_str": "20h",
             "link": "https://selector.org.il/e/H-7gdBPkucB",
-            "description": "Spectacle en français dans un comedy club à l'américaine en plein centre-ville de Netanya ! au 31 rue Herzl.\r\nOuverture des portes 20h\r\nDébut du spectacle 21h\r\nCasher Halavi",
-            "flyer": ""
+            "description": "Spectacle en français dans un comedy club à l'américaine en plein centre-ville de Netanya ! au 31 rue Herzl.\nOuverture des portes 20h\nDébut du spectacle 21h\nCasher Halavi",
+            "flyer": "",
+            "photos": []
         }
     ],
     "artists": {
@@ -70,7 +71,7 @@
         },
         "1155c6bf15a04add95cf6cfac60fc4fa": {
             "id": "1155c6bf15a04add95cf6cfac60fc4fa",
-            "name": "David Smadja ",
+            "name": "David Smadja",
             "bio": "Biographie à venir...",
             "main_photo": "",
             "gallery": []

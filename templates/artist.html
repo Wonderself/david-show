@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ artist.name }}</title>
+    <title>{{ artist.name }} - Le Rendez-vous du Dimanche</title>
+    
+    <!-- Meta OG pour partage -->
+    <meta property="og:title" content="{{ artist.name }} - Le Rendez-vous du Dimanche">
+    <meta property="og:description" content="{{ artist.bio[:100] if artist.bio else 'Artiste du Rendez-vous du Dimanche' }}">
+    {% if artist.main_photo %}
+    <meta property="og:image" content="{{ artist.main_photo }}">
+    {% endif %}
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -15,7 +23,7 @@
 <body class="min-h-screen relative">
 
     <div class="fixed inset-0 z-0">
-        <img src="/static/{{ settings.bg_image }}" class="w-full h-full object-cover opacity-20">
+        <img src="/static/{{ settings.bg_image }}" class="w-full h-full object-cover opacity-20" onerror="this.style.opacity='0'">
         <div class="absolute inset-0 bg-black/80"></div>
     </div>
 
@@ -27,7 +35,11 @@
         <div class="flex flex-col items-center text-center mb-10">
             <div class="w-48 h-48 rounded-full p-1 bg-gradient-to-tr from-pink-500 to-purple-600 shadow-2xl mb-6">
                 <div class="w-full h-full rounded-full overflow-hidden bg-black">
-                    <img src="/static/{{ artist.main_photo }}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name={{ artist.name|urlencode }}&size=256&background=1a1a1a&color=ec4899'">
+                    {% if artist.main_photo %}
+                    <img src="{{ artist.main_photo }}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name={{ artist.name|urlencode }}&size=256&background=1a1a1a&color=ec4899'">
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ artist.name|urlencode }}&size=256&background=1a1a1a&color=ec4899" class="w-full h-full object-cover">
+                    {% endif %}
                 </div>
             </div>
             <h1 class="text-4xl font-black uppercase mb-2">{{ artist.name }}</h1>
@@ -41,13 +53,13 @@
             </div>
         </div>
 
-        {% if artist.gallery %}
+        {% if artist.gallery and artist.gallery|length > 0 %}
         <div>
             <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Galerie Photos</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {% for photo in artist.gallery %}
                 <div class="aspect-square rounded-xl overflow-hidden glass cursor-pointer hover:opacity-100 transition">
-                    <img src="/static/{{ photo }}" class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                    <img src="{{ photo }}" class="w-full h-full object-cover hover:scale-110 transition duration-500">
                 </div>
                 {% endfor %}
             </div>
